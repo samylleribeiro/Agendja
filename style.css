@@ -1,0 +1,138 @@
+/* ===== ESTILO GERAL ===== */
+body {
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #e3f2fd; /* Azul clarinho */
+    padding: 40px 20px;
+}
+
+/* ===== TÍTULOS ===== */
+h1 {
+    color: #1565c0;
+    margin-top: 50px; 
+    margin-bottom: 30px;
+}
+h2 {
+    color:#1565c0 ; 
+}
+/* ===== ENTRADAS (INPUTS E LABELS) ===== */
+label {
+    font-size: 16px;
+    color: #1565c0;       /* Azul escuro para leitura clara */
+    font-weight: bold;
+    display: block;       /* texto ACIMA do input */
+    text-align: center;   /* Centraliza tudo */
+    margin-bottom: 10px;  /* espacinho entre o texto e a caixinha */
+    width: 100%;
+}
+
+input {
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 2px solid #64b5f6;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s;
+    width: 100%;          /* input ocupa 100% do limite da div */
+    max-width: 220px;     /* ajusta no notebook e no celular */
+    box-sizing: border-box;
+}
+
+input:focus {
+    border-color: #1565c0; 
+    box-shadow: 0 0 5px rgba(21, 101, 192, 0.5);
+}
+#inputs-login,
+#inputs-cadastro {
+    display: flex;
+    flex-wrap: wrap;           /*se não couber no celular, ele quebra a linha! */
+    justify-content: center;   /* Centraliza tudo no meio da tela */
+    gap: 20px;                 /* Dá um espacinho show de lado e de cima entre os campos */
+    margin-bottom: 20px;       /* Afasta os campos dos botões de baixo */
+}
+/* ===== FORMATO DOS BOTÕES GERAIS ===== */
+button {
+    display: inline-block;
+    margin: 10px;
+    padding: 12px 25px;
+    font-size: 16px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s, background-color 0.3s;
+}
+
+/* ===== CORES DOS BOTÕES (Azul vibrante, mas não muito forte) ===== */
+#btn-logar,
+#btn-entrar,
+#btn-cadastrar,
+#btn-excluir-conta,
+#btn-redefinir-senha,
+#btn-finalizar-cadastro,
+#btn-pedreiro,
+#btn-eletricista,
+#btn-encanador,
+#btn-outroProfissional{
+    background-color: #2196f3; 
+    color: white;
+}
+
+button:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+button:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* ===== FORMATO E POSIÇÃO DOS BOTÕES FLUTUANTES ===== */
+#btn-voltar,
+#btn-logar {
+    position: fixed;
+    top: 20px;
+    z-index: 1000;
+}
+
+/* Botão de Logar ( no canto superior direito) */
+#btn-logar {
+    right: 20px;
+    font-weight: bold;
+}
+
+/* Botão de Voltar (Apenas a setinha, sem fundo nem sombra) */
+#btn-voltar {
+    left: 20px;
+    background-color: transparent;
+    color: #1565c0;          /* Cor da setinha */
+    box-shadow: none;        /* Remove a sombra */
+    font-size: 28px;         /* Aumenta o tamanho da seta */
+    padding: 0;
+}
+
+#btn-voltar:hover {
+    background-color: transparent; /* Garante que não ganha fundo no hover */
+    transform: scale(1.2);          /* Efeito suave ao passar o mouse */
+}
+/*Estilizaçao para o  paragrafo da tela Boas vindas*/
+p{
+    font-size: 16px;
+    color:#1565c0;
+    margin-bottom: 20px;
+}
+/*Estilização das mensagens de erro ou sucesso*/
+#msg-login,
+#msg-cadastro{
+    text-align: center;
+    font-weight: bold;
+    min-height: 22px;     /* Reserva o espaço do texto para não mover os botões */
+}
+/* Cor mensagens de erro ou sucesso*/
+.sucesso{
+    color: green;
+}
+.erro{
+    color: red;
+}
