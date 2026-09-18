@@ -43,7 +43,9 @@ input:focus {
     box-shadow: 0 0 5px rgba(21, 101, 192, 0.5);
 }
 #inputs-login,
-#inputs-cadastro {
+#inputs-cadastro,
+#inputs-redefinir-senha,
+#inputs-cadastro-profissional {
     display: flex;
     flex-wrap: wrap;           /*se não couber no celular, ele quebra a linha! */
     justify-content: center;   /* Centraliza tudo no meio da tela */
@@ -61,23 +63,22 @@ button {
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     transition: transform 0.2s, background-color 0.3s;
-}
-
-/* ===== CORES DOS BOTÕES (Azul vibrante, mas não muito forte) ===== */
-#btn-logar,
-#btn-entrar,
-#btn-cadastrar,
-#btn-excluir-conta,
-#btn-redefinir-senha,
-#btn-finalizar-cadastro,
-#btn-pedreiro,
-#btn-eletricista,
-#btn-encanador,
-#btn-outroProfissional{
     background-color: #2196f3; 
     color: white;
 }
 
+#excelente {
+    background-color: #32CD32;
+    color: white;
+}
+#ruim {
+    background-color: red;
+    color: white;
+}
+#boa {
+    background-color: #FFA500; /* Laranja */
+    color: white;
+}
 button:hover {
     transform: scale(1.05);
     filter: brightness(1.1);
@@ -122,17 +123,12 @@ p{
     color:#1565c0;
     margin-bottom: 20px;
 }
-/*Estilização das mensagens de erro ou sucesso*/
-#msg-login,
-#msg-cadastro{
-    text-align: center;
-    font-weight: bold;
-    min-height: 22px;     /* Reserva o espaço do texto para não mover os botões */
-}
 /* Cor mensagens de erro ou sucesso*/
 .sucesso{
     color: green;
+    min-height: 22px; /* Garante que o espaço para a mensagem seja reservado, mesmo quando não há mensagem,evitando que os botões abaixo se movam */
 }
 .erro{
     color: red;
+    min-height: 22px;
 }
