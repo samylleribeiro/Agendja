@@ -188,10 +188,11 @@ function finalizarCadastro() {
     let nome = document.getElementById("nome").value.trim();
     let cpf = document.getElementById("cpf-cadastro").value.trim();
     let senha = document.getElementById("senha-cadastro").value;
+    let telefone = document.getElementById("telefone").value.trim();
     let confirmacaoSenha = document.getElementById("confirmar-senha").value;
 
     // 1.validação simples dos campos não preenchidos
-    if (validarCamposVazios(nome) || validarCamposVazios(cpf) || validarCamposVazios(senha) || validarCamposVazios(confirmacaoSenha)) {
+    if (validarCamposVazios(nome) || validarCamposVazios(cpf) || validarCamposVazios(senha) || validarCamposVazios(telefone) || validarCamposVazios(confirmacaoSenha)) {
         alertCadastro.innerText = "Por favor, preencha todos os campos!";
         alertCadastro.className = "erro";
         apagarMensagem();
@@ -212,14 +213,21 @@ function finalizarCadastro() {
         apagarMensagem();
         return;
     }
-    // 4. Validação se o CPF já está cadastrado
+    // 4. Validação do telefone (apenas números e 10 ou 11 dígitos)
+    if (!validarTelefone(telefone)) {
+        alertCadastro.innerText = "Telefone inválido! Digite apenas números (10 ou 11 dígitos).";
+        alertCadastro.className = "erro";
+        apagarMensagem();
+        return;
+    }
+    // 5. Validação se o CPF já está cadastrado
     if (localStorage.getItem(cpf) !== null) {
         alertCadastro.innerText = "Este CPF já está cadastrado no sistema!";
         alertCadastro.className = "erro";
         apagarMensagem();
         return;
     }
-    // 5. Validação se senha e confirmação são iguais
+    // 6. Validação se senha e confirmação são iguais
     if (senha !== confirmacaoSenha) {
         alertCadastro.innerText = "Senha e confirmação não coincidem!";
         alertCadastro.className = "erro";
@@ -229,11 +237,13 @@ function finalizarCadastro() {
     // salva o cpf e a senha do usuário no localStorage
     localStorage.setItem(cpf, senha);
     localStorage.setItem("nome_" + cpf, nome); // <--- salva o nome do usuário vinculando ao CPF
+    localStorage.setItem("telefone_" + cpf, telefone); // <--- salva o telefone do usuário vinculando ao CPF
     localStorage.setItem("tipo_" + cpf, "cliente"); // guarda o tipo de usuário como "cliente", para diferenciar de profissionais
     // limpa os campos de cadastro
     document.getElementById("nome").value = "";
     document.getElementById("cpf-cadastro").value = "";
     document.getElementById("senha-cadastro").value = "";
+    document.getElementById("telefone").value = "";
     document.getElementById("confirmar-senha").value = "";
 
     // redireciona para a tela de login
@@ -590,6 +600,12 @@ function irParaAvaliacao() {
     telaServicosAgendados.style.display = "none";
     telaAvaliacao.style.display = "block";
     telaAtual = "avaliacao";
+
+    document.getElementById("botoes-avaliacao").innerHTML = `
+    <button onclick="enviarAvaliacao('Excelente')">Excelente</button>
+    <button onclick="enviarAvaliacao('Boa')">Boa</button>
+    <button onclick="enviarAvaliacao('Ruim/Pessimo')">Ruim</button>
+    `;
 }
 // Função para enviar a avaliação
 function enviarAvaliacao(avaliacao) {
