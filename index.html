@@ -130,7 +130,7 @@
     <button id="btn-copiar" onclick="copiar()">Copiar</button>
     </div>
      
-    <!-- Tela perfil -->
+    <!-- Tela perfil cliente-->
     <div id="tela-perfil" style="display: none;">
     <h2 id = "nome-usuario">Olá</h2>   
     <p id="msg-perfil"></p>
@@ -138,10 +138,32 @@
     <button id="btn-buscar-servico" onclick="buscarServico()">Buscar Serviços 🛠️</button>
     <button id="btn-redefinir-senha-perfil" onclick="redefinirSenhaPerfil()">Redefinir Senha</button>
     <button id="btn-servicos-agendados" onclick="servicosAgendados()">Meus Agendamentos</button>
+    <button id="btn-editar-perfil" onclick="editarPerfilCliente()">Editar Perfil</button>
     <button id="btn-excluir-conta-perfil" onclick="excluirConta()">Excluir Conta</button>
        </div>
     </div>
    
+    <!-- Tela de Editar Perfil do Cliente -->
+    <div id="tela-editar-perfil" style="display: none;">
+    <h2>Editar Perfil 🛠️</h2>
+    <div id="inputs-editar-perfil">
+        <div>
+            <label for="nome-editar">Nome:</label>
+            <input type="text" id="nome-editar" placeholder="Digite seu nome">
+        </div>
+        <div>
+            <label for="telefone-editar">Telefone:</label>
+            <input type="text" id="telefone-editar" placeholder="Digite seu telefone">
+        </div>
+        <div>
+            <label for="cpf-editar">CPF:</label>
+            <input type="text" id="cpf-editar" placeholder="Digite seu CPF">
+        </div>
+    </div>
+    <p id="msg-editar-perfil"></p>
+    <button onclick="finalizarEdicaoPerfil()">Finalizar Edição</button>
+    </div>
+
     <!-- Tela de Serviços Agendados -->
     <div id="tela-servicos-agendados" style="display: none;">
     <h2>Meus Agendamentos</h2>
@@ -200,10 +222,34 @@
     <button id="btn-disponibilidade-profissional" onclick="disponibilidadeProfissional()">Definir Disponibilidade e Orçamento</button>   
     <button id="btn-servicos-agendados-profissional" onclick="servicosProfissional()">Meus Serviços Agendados</button>
     <button id="btn-redefinir-senha-perfil-profissional" onclick="redefinirSenhaPerfilProfissional()">Redefinir Senha</button>
+    <button id="btn-editar-dados-profissional" onclick="editarDadosProfissional()">Editar dados</button>
     <button id="btn-excluir-conta-perfil-profissional" onclick="excluirContaProfissional()">Excluir Conta</button>
       </div>
 </div>
-
+ <!-- Tela de Editar dados do profissional -->
+    <div id="tela-editar-perfil-profissional" style="display: none;">
+    <h2>Editar Perfil 🛠️</h2>
+    <div id="inputs-editar-dados-profissional">
+        <div>
+            <label for="nome-profissional-editar">Nome:</label>
+            <input type="text" id="nome-profissional-editar" placeholder="Digite seu nome">
+        </div>
+        <div>
+            <label for="telefone-profissional-editar">Telefone:</label>
+            <input type="text" id="telefone-profissional-editar" placeholder="Digite seu telefone">
+        </div>
+        <div>
+            <label for="cpf-profissional-editar">CPF:</label>
+            <input type="text" id="cpf-profissional-editar" placeholder="Digite seu CPF">
+        </div>
+        <div>
+            <label for="profissao-profissional">Profissão</label>
+            <input type="text" id="profissao-profissional" placeholder="Digite sua profissão">
+        </div>
+    </div>
+    <p id="msg-editar-perfil-profissional"></p>
+    <button onclick="finalizarEdicaoDadosProfissional()">Finalizar Edição</button>
+</div>
 <!-- Tela para o Profissional definir disponibilidade e orçamento -->
 <div id="tela-disponibilidade-orcamento-profissional" style="display: none;">
     <h2>Definir Disponibilidade e Orçamento</h2>
