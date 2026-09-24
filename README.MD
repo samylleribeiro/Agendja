@@ -12,6 +12,7 @@ Projeto desenvolvido em equipe como parte do Projeto Integrador 2 (PI2). Apresen
 ### Cliente
 Cadastro de usuário.
 Login.
+Visualização do perfil cliente
 Busca e seleção de serviços.
 Consulta de disponibilidade e orçamento.
 Realização de agendamento.
@@ -19,6 +20,7 @@ Visualização de serviços agendados.
 Cancelamento de agendamento.
 Avaliação do serviço.
 Redefinição de senha.
+Editar os dados
 Exclusão de conta.
 
 ### Profissional
@@ -28,6 +30,7 @@ Visualização do perfil profissional.
 Definição de disponibilidade e orçamento.
 Visualização de serviços agendados.
 Redefinição de senha.
+Editar seus dados
 Exclusão de conta.
 
 ## Validações implementadas
