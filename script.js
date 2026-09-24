@@ -16,6 +16,8 @@ let telaCadastroProfissional = document.getElementById("tela-cadastro-profission
 let telaPerfilProfissional = document.getElementById("tela-perfil-profissional");
 let telaDisponibilidadeOrcamentoProfissional = document.getElementById("tela-disponibilidade-orcamento-profissional");
 let telaServicosAgendadosProfissional = document.getElementById("tela-servicos-agendados-profissional");
+let telaEditarDadosCliente = document.getElementById("tela-editar-perfil");
+let telaEditarDadosProfissional = document.getElementById("tela-editar-perfil-profissional");
 let tituloDisponibilidade = document.getElementById("titulo-disponibilidade");
 let profissional = document.getElementById("profissional");
 let data = document.getElementById("data");
@@ -37,11 +39,14 @@ let alertRedefinirSenha = document.getElementById("msg-redefinir-senha");
 let alertDisponibilidadeOrcamento = document.getElementById("msg-disponibilidade-orcamento");
 let alertAgendamentoConfirmado = document.getElementById("msg-agendamento-confirmado");
 let alertPerfil = document.getElementById("msg-perfil");
+let alertPerfilProfissional = document.getElementById("msg-perfil-profissional");
 let alertServicosAgendados = document.getElementById("msg-servicos-agendados");
 let alertAvaliacao = document.getElementById("msg-avaliacao");
 let alertCadastroProfissional = document.getElementById("msg-cadastro-profissional");
 let alertDisponibilidadeOrcamentoProfissional = document.getElementById("msg-disponibilidade-orcamento-profissional");
 let alertServicosAgendadosProfissional = document.getElementById("msg-servicos-agendados-profissional");
+let alertEditarDadosCliente = document.getElementById("msg-editar-perfil");
+let alertEditarDadosProfissional = document.getElementById("msg-editar-perfil-profissional");
 // variaveis para guardar o serviço e profissional escolhido
 let servicoAtual;
 let profissionalSorteado;
@@ -66,10 +71,13 @@ function apagarMensagem() {
         alertDisponibilidadeOrcamento.innerText = "";
         alertAgendamentoConfirmado.innerText = "";
         alertPerfil.innerText = "";
+        alertPerfilProfissional.innerText = "";
         alertServicosAgendados.innerText = "";
         alertAvaliacao.innerText = "";
         alertCadastroProfissional.innerText = "";
         alertDisponibilidadeOrcamentoProfissional.innerText = "";
+        alertEditarDadosCliente.innerText = "";
+        alertEditarDadosProfissional.innerText = "";
     }, 3000); // 3000 milissegundos = 3 segundos
 }
 
@@ -158,6 +166,14 @@ function voltar() {
     telaServicosAgendadosProfissional.style.display = "none";
     telaPerfilProfissional.style.display = "block";
     telaAtual = "perfil-profissional";
+  } else if (telaAtual === "editar-perfil") {
+    telaEditarDadosCliente.style.display = "none";
+    telaPerfil.style.display = "block";
+    telaAtual = "perfil";
+  } else if (telaAtual === "editar-perfil-profissional") {
+    telaEditarDadosProfissional.style.display = "none";
+    telaPerfilProfissional.style.display = "block";
+    telaAtual = "perfil-profissional"
   }
 }
 // função para o botão de logar
@@ -819,4 +835,116 @@ function validarTelefone(telefone) {
         return false;
     }
     return true;
+}
+// função para ir para tela de editar dados do perfil do usuário
+function  editarPerfilCliente() {
+telaPerfil.style.display = "none";
+telaEditarDadosCliente.style.display = "block";
+telaAtual = "editar-perfil";
+}
+// função para ir para a tela de editar dados do profissional
+function editarDadosProfissional() {
+ telaPerfilProfissional.style.display = "none";
+ telaEditarDadosProfissional.style.display = "block";
+ telaAtual = "editar-perfil-profissional"; 
+}
+// função para confirmar a edição dos dados do cliente
+function finalizarEdicaoPerfil() {
+// pega os valores que o cliente digitou
+let nome = document.getElementById("nome-editar").value.trim();
+let cpf = document.getElementById("cpf-editar").value.trim();
+let telefone = document.getElementById("telefone-editar").value.trim(); 
+// 1. validação simples dos campos não preenchidos
+    if (validarCamposVazios(cpf) || validarCamposVazios(nome) || validarCamposVazios(telefone)) {
+        alertEditarDadosCliente.innerText = "Por favor, preencha todos os campos!";
+        alertEditarDadosCliente.className = "erro";
+        apagarMensagem();
+        return;
+    }
+
+    // 2. validação do cpf
+    if (!validarCPF(cpf)) {
+        alertEditarDadosCliente.innerText = "CPF inválido!";
+        alertEditarDadosCliente.className = "erro";
+        apagarMensagem();
+        return;
+    }
+    // 3. validação do nome (apenas letras e espaços)
+    if (!validarNome(nome)) {
+        alertEditarDadosCliente.innerText = "Nome inválido! Digite apenas letras e espaços.";
+        alertEditarDadosCliente.className = "erro";
+        apagarMensagem();
+        return;
+    }
+    // 4. validação do telefone (apenas números e 10 ou 11 dígitos)
+    if (!validarTelefone(telefone)) {
+        alertEditarDadosCliente.innerText = "Telefone inválido! Digite apenas números e com 10 ou 11 dígitos.";
+        alertEditarDadosCliente.className = "erro";
+        apagarMensagem();
+        return;
+    }
+    // limpa os campos
+    document.getElementById("nome-editar").value = "";
+    document.getElementById("cpf-editar").value = "";
+    document.getElementById("telefone-editar").value = "";
+    // volta para a tela de perfil
+    telaEditarDadosCliente.style.display = "none";
+    telaPerfil.style.display = "block";
+    telaAtual = "perfil";
+
+    // mensagem na tela de login
+    alertPerfil.innerText = "Dados atualizados com sucesso";
+    alertPerfil.className = "sucesso";
+    apagarMensagem();
+}
+// função para editar os dados de um profissional
+function finalizarEdicaoDadosProfissional() {
+// pega os valores que o cliente digitou
+let nome = document.getElementById("nome-profissional-editar").value.trim();
+let cpf = document.getElementById("cpf-profissional-editar").value.trim();
+let telefone = document.getElementById("telefone-profissional-editar").value.trim();
+let profissao = document.getElementById("profissao-profissional").value.trim();
+// 1. validação simples dos campos não preenchidos
+    if (validarCamposVazios(cpf) || validarCamposVazios(nome) || validarCamposVazios(telefone) || validarCamposVazios(profissao)){
+        alertEditarDadosProfissional.innerText = "Por favor, preencha todos os campos!";
+        alertEditarDadosProfissional.className = "erro";
+        apagarMensagem();
+        return;
+    }
+
+    // 2. validação do cpf
+    if (!validarCPF(cpf)) {
+        alertEditarDadosProfissional.innerText = "CPF inválido!";
+        alertEditarDadosProfissional.className = "erro";
+        apagarMensagem();
+        return;
+    }
+    // 3. validação do nome (apenas letras e espaços)
+    if (!validarNome(nome)) {
+        alertEditarDadosProfissional.innerText = "Nome inválido! Digite apenas letras e espaços.";
+        alertEditarDadosProfissional.className = "erro";
+        apagarMensagem();
+        return;
+    }
+    // 4. validação do telefone (apenas números e 10 ou 11 dígitos)
+    if (!validarTelefone(telefone)) {
+        alertEditarDadosProfissional.innerText = "Telefone inválido! Digite apenas números e com 10 ou 11 dígitos.";
+        alertEditarDadosProfissional.className = "erro";
+        apagarMensagem();
+        return;
+    }
+    // limpa os campos
+    document.getElementById("nome-profissional-editar").value = "";
+    document.getElementById("cpf-profissional-editar").value = "";
+    document.getElementById("telefone-profissional-editar").value = "";
+    document.getElementById("profissao-profissional").value = "";
+    // volta para a tela de perfil do profissional
+    telaEditarDadosProfissional.style.display = "none";
+    telaPerfilProfissional.style.display = "block";
+    telaAtual = "perfil-profissional";
+
+    // mensagem na tela de login do profissional
+    alertPerfilProfissional.innerText = "Dados atualizados com sucesso";
+    alertPerfilProfissional.className = "sucesso";
+    apagarMensagem();
 }
