@@ -45,7 +45,10 @@ input:focus {
 #inputs-login,
 #inputs-cadastro,
 #inputs-redefinir-senha,
-#inputs-cadastro-profissional {
+#inputs-cadastro-profissional,
+#inputs-editar-perfil,
+#inputs-editar-dados-profissional,
+#inputs-disponibilidade-orcamento {
     display: flex;
     flex-wrap: wrap;           /*se não couber no celular, ele quebra a linha! */
     justify-content: center;   /* Centraliza tudo no meio da tela */
