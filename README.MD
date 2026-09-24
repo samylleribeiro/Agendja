@@ -10,28 +10,28 @@ Projeto desenvolvido em equipe como parte do Projeto Integrador 2 (PI2). Apresen
 
 ## 🛠️ Funcionalidades implementadas
 ### Cliente
-Cadastro de usuário.
-Login.
-Visualização do perfil cliente
-Busca e seleção de serviços.
-Consulta de disponibilidade e orçamento.
-Realização de agendamento.
-Visualização de serviços agendados.
-Cancelamento de agendamento.
-Avaliação do serviço.
-Redefinição de senha.
-Editar os dados
-Exclusão de conta.
+- Cadastro de usuário.
+- Login.
+- Visualização do perfil cliente
+- Busca e seleção de serviços.
+- Consulta de disponibilidade e orçamento.
+- Realização de agendamento.
+- Visualização de serviços agendados.
+- Cancelamento de agendamento.
+- Avaliação do serviço.
+- Redefinição de senha.
+- Editar os dados
+- Exclusão de conta.
 
 ### Profissional
-Cadastro de profissional.
-Login.
-Visualização do perfil profissional.
-Definição de disponibilidade e orçamento.
-Visualização de serviços agendados.
-Redefinição de senha.
-Editar seus dados
-Exclusão de conta.
+- Cadastro de profissional.
+- Login.
+- Visualização do perfil profissional.
+- Definição de disponibilidade e orçamento.
+- Visualização de serviços agendados.
+- Redefinição de senha.
+- Editar seus dados
+- Exclusão de conta.
 
 ## Validações implementadas
 validarCPF(): verifica se o CPF possui 11 dígitos numéricos e bloqueia sequências de números repetidos.
