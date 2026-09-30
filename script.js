@@ -237,12 +237,7 @@ function finalizarCadastro() {
         return;
     }
     // 5. Validação se o CPF já está cadastrado
-    if (localStorage.getItem(cpf) !== null) {
-        alertCadastro.innerText = "Este CPF já está cadastrado no sistema!";
-        alertCadastro.className = "erro";
-        apagarMensagem();
-        return;
-    }
+    
     // 6. Validação se senha e confirmação são iguais
     if (senha !== confirmacaoSenha) {
         alertCadastro.innerText = "Senha e confirmação não coincidem!";
@@ -250,29 +245,49 @@ function finalizarCadastro() {
         apagarMensagem();
         return;
     }
-    // salva o cpf e a senha do usuário no localStorage
-    localStorage.setItem(cpf, senha);
-    localStorage.setItem("nome_" + cpf, nome); // <--- salva o nome do usuário vinculando ao CPF
-    localStorage.setItem("telefone_" + cpf, telefone); // <--- salva o telefone do usuário vinculando ao CPF
-    localStorage.setItem("tipo_" + cpf, "cliente"); // guarda o tipo de usuário como "cliente", para diferenciar de profissionais
-    // limpa os campos de cadastro
+    // Integra com a api agendjá
+ fetch("https://api-agendja.onrender.com/clientes", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        nome: nome,
+        cpf: cpf,
+        telefone: telefone,
+        senha: senha
+    })
+})
+.then(resposta => {
+    if (!resposta.ok) {
+        throw new Error("Erro ao cadastrar cliente");
+    }
+
+    return resposta.json();
+})
+.then(dados => {
+    console.log(dados);
+
+    // limpa os campos
     document.getElementById("nome").value = "";
     document.getElementById("cpf-cadastro").value = "";
     document.getElementById("senha-cadastro").value = "";
     document.getElementById("telefone").value = "";
     document.getElementById("confirmar-senha").value = "";
 
-    // redireciona para a tela de login
+    // vai para a tela de login
     telaCadastro.style.display = "none";
     telaLogin.style.display = "block";
     telaAtual = "login";
 
-    // Coloca a mensagem na TELA DE LOGIN (onde o usuário está agora) e some logo depois
     alertLogin.innerText = "Cadastro realizado com sucesso! Faça seu login.";
     alertLogin.className = "sucesso";
     apagarMensagem();
+})
+.catch(erro => {
+    console.error(erro);
+});
 }
-
 // função para o botão de entrar (login)
 function entrar() {
     // pega os valores dos campos de login
