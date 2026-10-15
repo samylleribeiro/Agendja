@@ -50,10 +50,13 @@ let alertEditarDadosProfissional = document.getElementById("msg-editar-perfil-pr
 // variaveis para guardar o serviço e profissional escolhido
 let servicoAtual;
 let profissionalSorteado;
-// variável para armazenar o nome do usuário logado e cpf do usuário logado
+// variável para armazenar o nome do cliente logado e cpf do cliente logado
 let nomeUsuarioLogado = "";
 let cpfUsuarioLogado = "";
 let tipoUsuarioLogado = "";
+// variaveis para armazenar os dados do cliente logado
+let nomeCliente = document.getElementById("nome-cliente");
+let telefoneCliente = document.getElementById("telefone-cliente");
 // varriaveis para armazenar os dados do profissional logado
 let nomeProfissional = document.getElementById("nome-profissional-perfil");
 let profissaoProfissional = document.getElementById("profissao-profissional-perfil");
@@ -236,9 +239,7 @@ function finalizarCadastro() {
         apagarMensagem();
         return;
     }
-    // 5. Validação se o CPF já está cadastrado
-    
-    // 6. Validação se senha e confirmação são iguais
+    // 5. Validação se senha e confirmação são iguais
     if (senha !== confirmacaoSenha) {
         alertCadastro.innerText = "Senha e confirmação não coincidem!";
         alertCadastro.className = "erro";
@@ -286,10 +287,13 @@ function finalizarCadastro() {
 })
 .catch(erro => {
     console.error(erro);
+    alertCadastro.innerText = "Não foi possível realizar o cadastro. Verifique os dados e tente novamente.";
+    alertCadastro.className = "erro";
+    apagarMensagem();
 });
 }
 // função para o botão de entrar (login)
-function entrar() {
+function entrarCliente() {
     // pega os valores dos campos de login
     let cpf = document.getElementById("cpf").value.trim();
     let senha = document.getElementById("senha").value;
@@ -307,54 +311,52 @@ function entrar() {
         apagarMensagem();
         return;
     }
-   //busca os dados salvos no localStore
-   let dadosSalvos = localStorage.getItem(cpf);
-   // verifica se os dados digitados são iguais
-   // Se não encontrou os dados no localStorage
-    if (dadosSalvos === null) {
-        alertLogin.innerText = "Usuário não encontrado. Por favor, cadastre-se!";
-        alertLogin.className = "erro"
-        apagarMensagem();
-        return;
+      // Integra com a api agendjá
+ fetch("https://api-agendja.onrender.com/clientes/login", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        cpf: cpf,
+        senha: senha
+    })
+})
+.then(resposta => {
+    if (!resposta.ok) {
+        throw new Error("Erro ao realizar login");
     }
 
-    // Se a senha digitada for diferente da senha salva
-    if (dadosSalvos !== senha) {
-        alertLogin.innerText = "Senha incorreta!";
-        alertLogin.className = "erro"
-        apagarMensagem(); 
-        return;
-    }
+    return resposta.json();
+})
+.then(dados => {
+    console.log(dados);
 
-    // Guarda os dados nas variáveis globais
-    cpfUsuarioLogado = cpf;
-    nomeUsuarioLogado = localStorage.getItem("nome_" + cpf);
-    tipoUsuarioLogado = localStorage.getItem("tipo_" + cpf); // <--- Guarda o tipo (cliente ou profissional)  
-    // Se passou por todas as verificações
-    // oculta a tela de login
-        telaLogin.style.display = "none";
-     // Limpa os campos de login após o sucesso 
-    document.getElementById("cpf").value = "";
+   // Guarda os dados do cliente autenticado
+    cpfUsuarioLogado = dados.cpf;
+    nomeUsuarioLogado = dados.nome;
+    tipoUsuarioLogado = "cliente";
+
+    // limpa os campos
     document.getElementById("senha").value = "";
+    document.getElementById("cpf").value = "";
 
-   if (tipoUsuarioLogado === "profissional") {
-    // Busca os dados no localStorage e guarda nas variáveis
-        profissaoProfissionalLogado = localStorage.getItem("profissao_" + cpf);
-        telefoneProfissionalLogado = localStorage.getItem("telefone_" + cpf);
+    // vai para a tela de perfil
+    telaLogin.style.display = "none";
+    telaPerfil.style.display = "block";
+    telaAtual = "perfil";
 
-        // Coloca os textos na tela
-        nomeProfissional.innerText = `Bem-vindo(a), ${nomeUsuarioLogado}!`;
-        profissaoProfissional.innerText = `Profissão: ${profissaoProfissionalLogado}`;
-        telefoneProfissional.innerText = `Telefone: ${telefoneProfissionalLogado}`;
-        // mostra a tela de perfil do profissional
-        telaPerfilProfissional.style.display = "block";
-        telaAtual = "perfil-profissional";
-    } else {
-        // se for "cliente" vai pro perfil do cliente
-        telaPerfil.style.display = "block";
-        nomeUsuario.innerText = `Olá, ${nomeUsuarioLogado}! 👋`;
-        telaAtual = "perfil";
-    }
+    // Mostra o nome e o telefone do cliente logado na tela de perfil recebendo os dados da api
+    nomeCliente.innerText = `Olá, ${dados.nome}! 👋`;
+    telefoneCliente.innerText = `Telefone: ${dados.telefone}`;
+   
+})
+.catch(erro => {
+    console.error(erro);
+    alertLogin.innerText = "Não foi possível realizar o login. Verifique os dados e tente novamente.";
+    alertLogin.className = "erro";
+    apagarMensagem();
+});
 }
 // função para excluir conta
 function excluirConta(){
@@ -700,48 +702,60 @@ function finalizarCadastroProfissional() {
         apagarMensagem();
         return;
     }
-    // 5. validação se CPF já está cadastrado
-    if (localStorage.getItem(cpf) !== null) {
-        alertCadastroProfissional.innerText = "Este CPF já está cadastrado no sistema!";
-        alertCadastroProfissional.className = "erro";
-        apagarMensagem();
-        return;
-    }
-
-    // 6. validação da senha
+    // 5. validação da senha
     if (senha !== confirmacaoSenha) {
         alertCadastroProfissional.innerText = "Senha e confirmação não coincidem!";
         alertCadastroProfissional.className = "erro";
         apagarMensagem();
         return;
     }
+  // Integra com a api agendjá
+ fetch("https://api-agendja.onrender.com/profissionais", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        nome: nome,
+        cpf: cpf,
+        telefone: telefone,
+        profissao:profissao,
+        senha: senha
+    })
+})
+.then(resposta => {
+    if (!resposta.ok) {
+        throw new Error("Erro ao cadastrar um profissional");
+    }
 
-    // salva o CPF e a senha do profissional
-    localStorage.setItem(cpf, senha);
-
-    // salva os dados do profissional vinculados ao CPF
-    localStorage.setItem("nome_" + cpf, nome);
-    localStorage.setItem("telefone_" + cpf, telefone);
-    localStorage.setItem("profissao_" + cpf, profissao);
-    localStorage.setItem("tipo_" + cpf, "profissional"); // guarda o tipo de usuário como "profissional", para diferenciar de clientes
+    return resposta.json();
+})
+.then(dados => {
+    console.log(dados);
 
     // limpa os campos
     document.getElementById("nome-profissional").value = "";
     document.getElementById("cpf-profissional").value = "";
-    document.getElementById("telefone-profissional").value = "";
-    document.getElementById("profissao").value = "";
     document.getElementById("senha-profissional").value = "";
+    document.getElementById("telefone-profissional").value = "";
     document.getElementById("confirmar-senha-profissional").value = "";
+    document.getElementById("profissao").value = "";
 
-    // volta para a tela de login
+    // vai para a tela de login
     telaCadastroProfissional.style.display = "none";
     telaLogin.style.display = "block";
     telaAtual = "login";
 
-    // mensagem na tela de login
-    alertLogin.innerText = "Cadastro de profissional realizado com sucesso! Faça seu login.";
+    alertLogin.innerText = "Cadastro realizado com sucesso! Faça seu login.";
     alertLogin.className = "sucesso";
     apagarMensagem();
+})
+.catch(erro => {
+    console.error(erro);
+    alertCadastroProfissional.innerText = "Não foi possível realizar o cadastro. Verifique os dados e tente novamente.";
+    alertCadastroProfissional.className = "erro";
+    apagarMensagem();
+});
 }
 // função para excluir conta do profissional
 function excluirContaProfissional() {

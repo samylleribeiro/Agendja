@@ -35,7 +35,8 @@
         </div>
         <p id="msg-login"></p>
         <div id="botoes-login">
-            <button id="btn-entrar" onclick="entrar()">Entrar</button>
+            <button id="btn-entrar-cliente" onclick="entrarCliente()">Entrar como Cliente</button>
+            <button id="btn-entrar-profissional" onclick="entrarProfissional()">Entrar como Profissional</button>
             <button id="btn-cadastrar-cliente" onclick="cadastrarCliente()">Cadastrar cliente</button>
             <button id="btn-cadastrar-profissional" onclick="cadastrarProfissional()">Cadastrar profissional</button>
             <button id="btn-redefinir-senha" onclick="redefinirSenhaLogin()">Redefinir Senha</button>
@@ -132,7 +133,8 @@
      
     <!-- Tela perfil cliente-->
     <div id="tela-perfil" style="display: none;">
-    <h2 id = "nome-usuario">Olá</h2>   
+    <h2 id = "nome-cliente">Olá</h2>
+    <p id="telefone-cliente"></p>
     <p id="msg-perfil"></p>
     <div id="botoes-perfil">
     <button id="btn-buscar-servico" onclick="buscarServico()">Buscar Serviços 🛠️</button>
