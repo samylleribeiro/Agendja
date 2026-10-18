@@ -51,6 +51,7 @@ let alertEditarDadosProfissional = document.getElementById("msg-editar-perfil-pr
 let servicoAtual;
 let profissionalSorteado;
 // variável para armazenar o nome do cliente logado e cpf do cliente logado
+let idUsuarioLogado = "";
 let nomeUsuarioLogado = "";
 let cpfUsuarioLogado = "";
 let tipoUsuarioLogado = "";
@@ -113,11 +114,6 @@ function voltar() {
         telaPerfil.style.display = "block";
 
         telaAtual = "perfil";
-    } else if (telaAtual === "redefinir-senha-login") {
-    telaRedefinirSenha.style.display = "none";
-    telaLogin.style.display = "block";
-
-    telaAtual = "login";
     } else if (telaAtual === "redefinir-senha-perfil") {
     telaRedefinirSenha.style.display = "none";
     telaPerfil.style.display = "block";
@@ -177,7 +173,8 @@ function voltar() {
     telaEditarDadosProfissional.style.display = "none";
     telaPerfilProfissional.style.display = "block";
     telaAtual = "perfil-profissional"
-  }
+  } 
+   
 }
 // função para o botão de logar
 function logar() {
@@ -292,7 +289,7 @@ function finalizarCadastro() {
     apagarMensagem();
 });
 }
-// função para o botão de entrar (login)
+// função para o botão de entrar (cliente) - login
 function entrarCliente() {
     // pega os valores dos campos de login
     let cpf = document.getElementById("cpf").value.trim();
@@ -335,6 +332,7 @@ function entrarCliente() {
    // Guarda os dados do cliente autenticado
     cpfUsuarioLogado = dados.cpf;
     nomeUsuarioLogado = dados.nome;
+    idUsuarioLogado = dados.id;
     tipoUsuarioLogado = "cliente";
 
     // limpa os campos
@@ -358,35 +356,155 @@ function entrarCliente() {
     apagarMensagem();
 });
 }
-// função para excluir conta
-function excluirConta(){
+// função para o botão de entrar (profissional) - login
+function entrarProfissional() {
+    // pega os valores dos campos de login
+    let cpf = document.getElementById("cpf").value.trim();
+    let senha = document.getElementById("senha").value;
+    // validação simples dos campos não preenchidos
+    if ( validarCamposVazios(cpf) || validarCamposVazios(senha)) {
+        alertLogin.innerText = "Por favor, preencha todos os campos!";
+        alertLogin.className = "erro"
+        apagarMensagem();
+        return;
+    }
+     //  Validação do cpf
+    if (!validarCPF(cpf)) {
+        alertLogin.innerText = "CPF inválido!";
+        alertLogin.className = "erro"
+        apagarMensagem();
+        return;
+    }
+      // Integra com a api agendjá
+ fetch("https://api-agendja.onrender.com/profissionais/login", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        cpf: cpf,
+        senha: senha
+    })
+})
+.then(resposta => {
+    if (!resposta.ok) {
+        throw new Error("Erro ao realizar login");
+    }
+
+    return resposta.json();
+})
+.then(dados => {
+    console.log(dados);
+
+   // Guarda os dados do profissional autenticado
+    cpfUsuarioLogado = dados.cpf;
+    nomeUsuarioLogado = dados.nome;
+    profissaoProfissionalLogado = dados.profissao;
+    idUsuarioLogado = dados.id;
+    tipoUsuarioLogado = "profissional";
+
+    // limpa os campos
+    document.getElementById("senha").value = "";
+    document.getElementById("cpf").value = "";
+
+    // vai para a tela de perfil
+    telaLogin.style.display = "none";
+    telaPerfilProfissional.style.display = "block";
+    telaAtual = "perfil-profissional";
+
+    // Mostra o nome e o telefone do profissional logado na tela de perfil recebendo os dados da api
+    nomeProfissional.innerText = `Olá, ${dados.nome}! 👋`;
+    telefoneProfissional.innerText = `Telefone: ${dados.telefone}`;
+    profissaoProfissional.innerText = `Profissão: ${dados.profissao}`;
+})
+.catch(erro => {
+    console.error(erro);
+    alertLogin.innerText = "Não foi possível realizar o login. Verifique os dados e tente novamente.";
+    alertLogin.className = "erro";
+    apagarMensagem();
+});
+}
+// função para excluir conta de um cliente
+function excluirContaCliente(){
  let confirmacao = confirm("Tem certeza de que deseja excluir sua conta? Esta ação não pode ser desfeita.");
     
     if (confirmacao) {
-       // Remove os dados do usuário do localStorage
-    localStorage.removeItem(cpfUsuarioLogado);
-    localStorage.removeItem("nome_" + cpfUsuarioLogado);
-    localStorage.removeItem("agendamento_" + cpfUsuarioLogado);
-   // Limpa as variáveis globais
-    cpfUsuarioLogado = "";
-    nomeUsuarioLogado = "";
-    // Redireciona para a tela de cadastro
-    telaPerfil.style.display = "none";
-    telaCadastro.style.display = "block";
-    telaAtual = "cadastro";
-    // Mensagem de sucesso na tela de cadastro
-    alertCadastro.innerText = "Conta excluída com sucesso! Cadastre-se novamente.";
-    alertCadastro.className = "sucesso";
-    apagarMensagem();
+        // Integra com a api agendjá para excluir a conta do cliente logado
+        if (tipoUsuarioLogado === "cliente") {
+            fetch(`https://api-agendja.onrender.com/clientes/${idUsuarioLogado}`, {
+                method: "DELETE"
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao excluir conta");
+                }
+                return response.json();
+            })
+            .then(dados => {
+                console.log(dados);
+                // Limpa as variáveis globais
+                cpfUsuarioLogado = "";
+                nomeUsuarioLogado = "";
+                idUsuarioLogado = "";
+                tipoUsuarioLogado = "";
+                // Redireciona para a tela de cadastro
+                telaPerfil.style.display = "none";
+                telaCadastro.style.display = "block";
+                telaAtual = "cadastro";
+                // Mensagem de sucesso na tela de cadastro
+                alertCadastro.innerText = "Conta excluída com sucesso! Cadastre-se novamente.";
+                alertCadastro.className = "sucesso";
+                apagarMensagem();
+            })
+            .catch(erro => {
+                console.error(erro);
+                alertCadastro.innerText = "Não foi possível excluir a conta. Tente novamente mais tarde.";
+                alertCadastro.className = "erro";
+                apagarMensagem();
+            });
+        }
     }
-
 }
-// redefinir senha vindo do login
-function redefinirSenhaLogin() {
-    telaLogin.style.display = "none";
-    telaRedefinirSenha.style.display = "block";
-
-    telaAtual = "redefinir-senha-login";
+// função para excluir conta de um profissional
+function excluirContaProfissional(){
+ let confirmacao = confirm("Tem certeza de que deseja excluir sua conta? Esta ação não pode ser desfeita.");
+    
+    if (confirmacao) {
+        // Integra com a api agendjá para excluir a conta do profissional logado
+        if (tipoUsuarioLogado === "profissional") {
+            fetch(`https://api-agendja.onrender.com/profissionais/${idUsuarioLogado}`, {
+                method: "DELETE"
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao excluir conta");
+                }
+                return response.json();
+            })
+            .then(dados => {
+                console.log(dados);
+                // Limpa as variáveis globais
+                cpfUsuarioLogado = "";
+                nomeUsuarioLogado = "";
+                idUsuarioLogado = "";
+                tipoUsuarioLogado = "";
+                // Redireciona para a tela de cadastro profissional
+                telaPerfilProfissional.style.display = "none";
+                telaCadastroProfissional.style.display = "block";
+                telaAtual = "cadastro-profissional";
+                // Mensagem de sucesso na tela de cadastro
+                alertCadastroProfissional.innerText = "Conta excluída com sucesso! Cadastre-se novamente.";
+                alertCadastroProfissional.className = "sucesso";
+                apagarMensagem();
+            })
+            .catch(erro => {
+                console.error(erro);
+                alertCadastroProfissional.innerText = "Não foi possível excluir a conta. Tente novamente mais tarde.";
+                alertCadastroProfissional.className = "erro";
+                apagarMensagem();
+            });
+        }
+    }
 }
 // redefinir senha vindo do perfil
 function redefinirSenhaPerfil() {
@@ -423,13 +541,6 @@ function salvarNovaSenha(){
         apagarMensagem();
         return;
     }
- //validação se o cpf digitado bate com o salvo
-     if (localStorage.getItem(cpf) === null) {
-        alertRedefinirSenha.innerText = "CPF não cadastrado, cadastre-se!";
-        alertRedefinirSenha.className = "erro"
-        apagarMensagem();
-        return;
-    }
   // validação se senha e nova senha são iguais
    if (novaSenha !== confirmarNovaSenha) {
         alertRedefinirSenha.innerText = "Nova senha e a confirmação não coincidem";
@@ -437,22 +548,83 @@ function salvarNovaSenha(){
         apagarMensagem();
         return;
     }
-  // se passar por todas as validações salva a nova senha
-   localStorage.setItem(cpf, novaSenha);
-  // limpa os campos de redefinir
-    document.getElementById("cpf-redefinir").value = "";
-    document.getElementById("nova-senha").value = "";
-    document.getElementById("confirmar-nova-senha").value = "";
- // volta pra tela de login
- telaRedefinirSenha.style.display = "none";
- telaLogin.style.display = "block";
+ // Integra com a api agendjá
+ // se o usuário for cliente, integra com a api para atualizar a senha do cliente
+ if (tipoUsuarioLogado === "cliente") {
+    fetch(`https://api-agendja.onrender.com/clientes/${idUsuarioLogado}/senha`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ senha: novaSenha })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Erro ao atualizar a senha");
+        }
+        return response.json();
+    })
+    .then(data => {
+        // limpa os campos de redefinir
+        document.getElementById("cpf-redefinir").value = "";
+        document.getElementById("nova-senha").value = "";
+        document.getElementById("confirmar-nova-senha").value = "";
+        // volta pra tela de login
+        telaRedefinirSenha.style.display = "none";
+        telaLogin.style.display = "block";
 
- telaAtual = "login";
+        telaAtual = "login";
 
- // mensagem de sucesso na tela de login(tela atual no momento)
- alertLogin.innerText = "Senha atualizada, faça login novamente";
- alertLogin.className = "sucesso";
- apagarMensagem();
+        // mensagem de sucesso na tela de login(tela atual no momento)
+        alertLogin.innerText = "Senha atualizada, faça login novamente";
+        alertLogin.className = "sucesso";
+        apagarMensagem();
+    })
+    .catch(error => {
+        console.error("Erro:", error);
+        alertRedefinirSenha.innerText = "Erro ao atualizar a senha. Tente novamente.";
+        alertRedefinirSenha.className = "erro";
+        apagarMensagem();
+    });
+ }  
+ // se o usuário for profissional, integra com a api para atualizar a senha do profissional
+ if (tipoUsuarioLogado === "profissional") {
+    fetch(`https://api-agendja.onrender.com/profissionais/${idUsuarioLogado}/senha`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ senha: novaSenha })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Erro ao atualizar a senha");
+        }
+        return response.json();
+    })
+    .then(data => {
+        // limpa os campos de redefinir
+        document.getElementById("cpf-redefinir").value = "";
+        document.getElementById("nova-senha").value = "";
+        document.getElementById("confirmar-nova-senha").value = "";
+        // volta pra tela de login
+        telaRedefinirSenha.style.display = "none";
+        telaLogin.style.display = "block";
+
+        telaAtual = "login";
+
+        // mensagem de sucesso na tela de login(tela atual no momento)
+        alertLogin.innerText = "Senha atualizada, faça login novamente";
+        alertLogin.className = "sucesso";
+        apagarMensagem();
+    })
+    .catch(error => {
+        console.error("Erro:", error);
+        alertRedefinirSenha.innerText = "Erro ao atualizar a senha. Tente novamente.";
+        alertRedefinirSenha.className = "erro";
+        apagarMensagem();
+    });
+ }
 }
 // função para escolher o profissional
 function selecionarServico(servico) {
@@ -757,38 +929,6 @@ function finalizarCadastroProfissional() {
     apagarMensagem();
 });
 }
-// função para excluir conta do profissional
-function excluirContaProfissional() {
-
-    let confirmacao = confirm("Tem certeza de que deseja excluir sua conta? Esta ação não pode ser desfeita.");
-
-    if (confirmacao) {
-
-        // Remove os dados do profissional do localStorage
-        localStorage.removeItem(cpfUsuarioLogado);
-        localStorage.removeItem("nome_" + cpfUsuarioLogado);
-        localStorage.removeItem("telefone_" + cpfUsuarioLogado);
-        localStorage.removeItem("profissao_" + cpfUsuarioLogado);
-
-        // Limpa as variáveis globais
-       cpfUsuarioLogado = "";
-       nomeUsuarioLogado = "";
-       tipoUsuarioLogado ="";
-
-       cpfProfissionalLogado = "";
-       telefoneProfissionalLogado = "";
-       profissaoProfissionalLogado = "";
-        // Redireciona para a tela de cadastro
-        telaPerfilProfissional.style.display = "none";
-        telaCadastroProfissional.style.display = "block";
-        telaAtual = "cadastro-profissional";
-
-        // Mensagem de sucesso
-        alertCadastroProfissional.innerText = "Conta excluída com sucesso! Cadastre-se novamente.";
-        alertCadastroProfissional.className = "sucesso";
-        apagarMensagem();
-    }
-}
 // Função para abrir a tela de Disponibilidade e Orçamento
 function disponibilidadeProfissional() {
     telaPerfilProfissional.style.display = "none";
@@ -976,4 +1116,8 @@ let profissao = document.getElementById("profissao-profissional").value.trim();
     alertPerfilProfissional.innerText = "Dados atualizados com sucesso";
     alertPerfilProfissional.className = "sucesso";
     apagarMensagem();
+}
+// função para caso usuário esqueça a senha
+function esqueciSenha() {
+alert("Em breve você poderá redefinir sua senha, aguarde a próxima atualização do sistema!");
 }

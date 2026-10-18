@@ -135,3 +135,10 @@ p{
     color: red;
     min-height: 22px;
 }
+/* Botão abaixo dos campos de disponibilidade */
+#botoes-disponibilidade-orcamento-profissional {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 20px;
+}

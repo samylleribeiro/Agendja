@@ -39,7 +39,7 @@
             <button id="btn-entrar-profissional" onclick="entrarProfissional()">Entrar como Profissional</button>
             <button id="btn-cadastrar-cliente" onclick="cadastrarCliente()">Cadastrar cliente</button>
             <button id="btn-cadastrar-profissional" onclick="cadastrarProfissional()">Cadastrar profissional</button>
-            <button id="btn-redefinir-senha" onclick="redefinirSenhaLogin()">Redefinir Senha</button>
+            <button id="btn-esqueceu-senha" onclick="esqueciSenha()">Esqueceu a senha?</button>
         </div>
     </div>
    
@@ -141,7 +141,7 @@
     <button id="btn-redefinir-senha-perfil" onclick="redefinirSenhaPerfil()">Redefinir Senha</button>
     <button id="btn-servicos-agendados" onclick="servicosAgendados()">Meus Agendamentos</button>
     <button id="btn-editar-perfil" onclick="editarPerfilCliente()">Editar Perfil</button>
-    <button id="btn-excluir-conta-perfil" onclick="excluirConta()">Excluir Conta</button>
+    <button id="btn-excluir-conta-perfil" onclick="excluirContaCliente()">Excluir Conta</button>
        </div>
     </div>
    
@@ -270,7 +270,9 @@
             <input type="number" id="orcamento-profissional" placeholder="Valor do orçamento">          
         </div>
     <p id="msg-disponibilidade-orcamento-profissional"></p>
+    <div id="botoes-disponibilidade-orcamento-profissional">
     <button onclick="salvarDisponibilidadeOrcamento()">Salvar Disponibilidade e Orçamento</button>
+    </div>
 </div>
 </div>
 <!-- Tela de Meus Serviços Agendados para o Profissional -->
@@ -283,6 +285,8 @@
 
     <p id="msg-servicos-agendados-profissional"></p>
 </div>
+
+
 
     <script src="script.js"></script>
 </body>
