@@ -1052,19 +1052,49 @@ let telefone = document.getElementById("telefone-editar").value.trim();
         apagarMensagem();
         return;
     }
-    // limpa os campos
-    document.getElementById("nome-editar").value = "";
-    document.getElementById("cpf-editar").value = "";
-    document.getElementById("telefone-editar").value = "";
-    // volta para a tela de perfil
-    telaEditarDadosCliente.style.display = "none";
-    telaPerfil.style.display = "block";
-    telaAtual = "perfil";
-
-    // mensagem na tela de login
-    alertPerfil.innerText = "Dados atualizados com sucesso";
-    alertPerfil.className = "sucesso";
-    apagarMensagem();
+    // integrar com a api agendjá para atualizar os dados do cliente
+    fetch(`https://api-agendja.onrender.com/clientes/${idUsuarioLogado}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            nome: nome,
+            cpf: cpf,
+            telefone: telefone
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Erro ao atualizar os dados do cliente");
+        }
+        return response.json();
+    })
+    .then(dados => {
+        // atualiza os dados do cliente logado
+        nomeUsuarioLogado = nome;
+        cpfUsuarioLogado = cpf;
+        nomeCliente.innerText = `Olá, ${nomeUsuarioLogado}! 👋`;
+        telefoneCliente.innerText = `Telefone: ${telefone}`;
+        // limpa os campos
+        document.getElementById("nome-editar").value = "";
+        document.getElementById("cpf-editar").value = "";
+        document.getElementById("telefone-editar").value = "";
+        // volta para a tela de perfil do cliente
+        telaEditarDadosCliente.style.display = "none";
+        telaPerfil.style.display = "block";
+        telaAtual = "perfil";
+        
+        alertPerfil.innerText = "Dados atualizados com sucesso";
+        alertPerfil.className = "sucesso";
+        apagarMensagem();
+    })
+    .catch(error => {
+        console.error("Erro ao atualizar os dados do cliente:", error);
+        alertEditarDadosCliente.innerText = "Erro ao atualizar os dados do cliente!";
+        alertEditarDadosCliente.className = "erro";
+        apagarMensagem();
+    });
 }
 // função para editar os dados de um profissional
 function finalizarEdicaoDadosProfissional() {
