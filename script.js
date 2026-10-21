@@ -415,7 +415,8 @@ function entrarProfissional() {
     // Mostra o nome e o telefone do profissional logado na tela de perfil recebendo os dados da api
     nomeProfissional.innerText = `Olá, ${dados.nome}! 👋`;
     telefoneProfissional.innerText = `Telefone: ${dados.telefone}`;
-    profissaoProfissional.innerText = `Profissão: ${dados.profissao}`;
+    // chama a função para mostrar a profissão do profissional logado
+    mostrarProfissaoProfissional();
 })
 .catch(erro => {
     console.error(erro);
@@ -488,6 +489,7 @@ function excluirContaProfissional(){
                 nomeUsuarioLogado = "";
                 idUsuarioLogado = "";
                 tipoUsuarioLogado = "";
+                profissaoProfissionalLogado = "";
                 // Redireciona para a tela de cadastro profissional
                 telaPerfilProfissional.style.display = "none";
                 telaCadastroProfissional.style.display = "block";
@@ -841,7 +843,7 @@ function finalizarCadastroProfissional() {
     let nome = document.getElementById("nome-profissional").value.trim();
     let cpf = document.getElementById("cpf-profissional").value.trim();
     let telefone = document.getElementById("telefone-profissional").value.trim();
-    let profissao = document.getElementById("profissao").value.trim();
+    let profissao = document.getElementById("escolha-profissao").value;
     let senha = document.getElementById("senha-profissional").value;
     let confirmacaoSenha = document.getElementById("confirmar-senha-profissional").value;
 
@@ -911,7 +913,7 @@ function finalizarCadastroProfissional() {
     document.getElementById("senha-profissional").value = "";
     document.getElementById("telefone-profissional").value = "";
     document.getElementById("confirmar-senha-profissional").value = "";
-    document.getElementById("profissao").value = "";
+    document.getElementById("escolha-profissao").value = "";
 
     // vai para a tela de login
     telaCadastroProfissional.style.display = "none";
@@ -1102,7 +1104,7 @@ function finalizarEdicaoDadosProfissional() {
 let nome = document.getElementById("nome-profissional-editar").value.trim();
 let cpf = document.getElementById("cpf-profissional-editar").value.trim();
 let telefone = document.getElementById("telefone-profissional-editar").value.trim();
-let profissao = document.getElementById("profissao-profissional").value.trim();
+let profissao = document.getElementById("profissao-profissional-editar").value;
 // 1. validação simples dos campos não preenchidos
     if (validarCamposVazios(cpf) || validarCamposVazios(nome) || validarCamposVazios(telefone) || validarCamposVazios(profissao)){
         alertEditarDadosProfissional.innerText = "Por favor, preencha todos os campos!";
@@ -1132,20 +1134,75 @@ let profissao = document.getElementById("profissao-profissional").value.trim();
         apagarMensagem();
         return;
     }
-    // limpa os campos
-    document.getElementById("nome-profissional-editar").value = "";
-    document.getElementById("cpf-profissional-editar").value = "";
-    document.getElementById("telefone-profissional-editar").value = "";
-    document.getElementById("profissao-profissional").value = "";
-    // volta para a tela de perfil do profissional
-    telaEditarDadosProfissional.style.display = "none";
-    telaPerfilProfissional.style.display = "block";
-    telaAtual = "perfil-profissional";
+    // integrar com a api agendjá para atualizar os dados do profissional
+    fetch(`https://api-agendja.onrender.com/profissionais/${idUsuarioLogado}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            nome: nome,
+            cpf: cpf,
+            telefone: telefone,
+            profissao: profissao
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Erro ao atualizar os dados do profissional");
+        }
+        return response.json();
+    })
+    .then(dados => {
+        // atualiza os dados do profissional logado
+        nomeUsuarioLogado = nome;
+        cpfUsuarioLogado = cpf;
+        profissaoProfissionalLogado = profissao;
+        nomeProfissional.innerText = `Olá, ${nomeUsuarioLogado}! 👋`;
+        telefoneProfissional.innerText = `Telefone: ${telefone}`;
+        // chama a função para mostrar a profissão do profissional logado na tela de perfil
+        mostrarProfissaoProfissional();
+        // limpa os campos
+        document.getElementById("nome-profissional-editar").value = "";
+        document.getElementById("cpf-profissional-editar").value = "";
+        document.getElementById("telefone-profissional-editar").value = "";
+        document.getElementById("profissao-profissional-editar").value = "";
+        // volta para a tela de perfil do profissional
+        telaEditarDadosProfissional.style.display = "none";
+        telaPerfilProfissional.style.display = "block";
+        telaAtual = "perfil-profissional";
 
-    // mensagem na tela de login do profissional
-    alertPerfilProfissional.innerText = "Dados atualizados com sucesso";
-    alertPerfilProfissional.className = "sucesso";
-    apagarMensagem();
+        // mensagem na tela de login do profissional
+        alertPerfilProfissional.innerText = "Dados atualizados com sucesso";
+        alertPerfilProfissional.className = "sucesso";
+        apagarMensagem();
+    })
+    .catch(error => {
+        console.error("Erro ao atualizar os dados do profissional:", error);
+        alertEditarDadosProfissional.innerText = "Erro ao atualizar os dados do profissional!";
+        alertEditarDadosProfissional.className = "erro";
+        apagarMensagem();
+    });
+}
+// função para organizar a forma de mostrar a profissão do profissional na tela de perfil do profissional
+function mostrarProfissaoProfissional() {
+    if (profissaoProfissionalLogado === "eletricista") {
+        profissaoProfissional.innerText = "Profissão: Eletricista";
+    } else if (profissaoProfissionalLogado === "encanador") {
+        profissaoProfissional.innerText = "Profissão: Encanador(a)";
+    } else if (profissaoProfissionalLogado === "pintor") {
+        profissaoProfissional.innerText = "Profissão: Pintor(a)";
+    } else if (profissaoProfissionalLogado === "pedreiro") {
+        profissaoProfissional.innerText = "Profissão: Pedreiro(a)";
+    } else if (profissaoProfissionalLogado === "jardineiro") {
+        profissaoProfissional.innerText = "Profissão: Jardineiro(a)";
+    } else if (profissaoProfissionalLogado === "mecanico") {
+        profissaoProfissional.innerText = "Profissão: Mecânico(a)";
+    } else if (profissaoProfissionalLogado === "montador") {
+        profissaoProfissional.innerText = "Profissão: Montador(a) de Móveis";
+    } else {
+    profissaoProfissional.innerText = `Profissão: ${profissaoProfissionalLogado}`;
+    }
 }
 // função para caso usuário esqueça a senha
 function esqueciSenha() {
