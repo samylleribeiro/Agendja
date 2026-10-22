@@ -73,18 +73,29 @@
             <button id="btn-finalizar-cadastro" onclick="finalizarCadastro()">Finalizar Cadastro</button>
         </div>
     </div>
-    <!-- Tela de buscar profissional -->
+   <!-- Tela de buscar profissional-->
     <div id="tela-buscar-profissional" style="display: none;">
-        <h2>Escolha o profissional desejado:</h2>
-        <p id="msg-busca"></p>
-    <div id="botoes-busca">
-        <button id="btn-pedreiro" onclick="selecionarServico('Pedreiro')">Pedreiro 🧱</button>
-        <button id="btn-eletricista" onclick="selecionarServico('Eletricista')">Eletricista ⚡</button>
-        <button id="btn-encanador" onclick="selecionarServico('Encanador')">Encanador 🚰</button>
-        <button id="btn-outroProfissional" onclick="outroProfissional()">Outro Profissional 🛠️</button>  
-      </div>
+        <h2>Buscar Profissional 🛠️</h2>
+        <div id="inputs-buscar-profissional">
+            <div>
+                <label for="profissao">Profissão:</label>
+                <select id="profissao">
+                    <option value="">Selecione a profissão</option>
+                    <option value="eletricista">Eletricista</option>
+                    <option value="encanador">Encanador(a)</option>
+                    <option value="pintor">Pintor(a)</option>
+                    <option value="pedreiro">Pedreiro(a)</option>
+                    <option value="jardineiro">Jardineiro(a)</option>
+                    <option value="mecanico">Mecânico(a)</option>
+                    <option value="montador">Montador(a) de Móveis</option>
+                </select>
+            </div>
+        </div>
+        <p id="msg-buscar-profissional"></p>
+        <div id="botoes-buscar-profissional">
+            <button id="btn-buscar" onclick="buscarProfissionais()">Buscar Profissionais</button>
+        </div>
     </div>
-    
     <!-- Tela de Redefinir Senha-->
     <div id="tela-redefinir-senha" style="display: none;">
         <div id="inputs-redefinir-senha">
@@ -109,16 +120,8 @@
 
     <!-- Tela Disponibilidade e Orçamento -->
     <div id="tela-disponibilidade-orcamento"  style="display: none;">
-        <h2 id="titulo-disponibilidade">Disponibilidade e Orçamento</h2>
-    <p id="profissional"></p>
-    <p id="data"></p>
-    <p id="horario"></p>
-    <p id="orcamento"></p>
-        <p id="msg-disponibilidade-orcamento"></p>
-      <div id="botoes-disponibilidade-orcamento">
-            <button id="btn-agendar" onclick="agendar()">Agendar Serviço</button>
-            <button id="btn-nova-disponibilidade-orcamento" onclick="nvDisponibilidadeOrcamento()">Nova Disponibilidade/Orçamento</button>
-      </div>
+    <div id="disponibilidades-do-profissional"></div>
+    <p id="msg-disponibilidade-orcamento"></p>
     </div>
 
     <!-- Tela Agradecimento / Agendamento Concluído -->

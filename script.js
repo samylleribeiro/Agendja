@@ -34,7 +34,7 @@ let btnVoltar= document.getElementById("btn-voltar");
 // Mensagens de alerta de erro ou sucesso
 let alertLogin = document.getElementById("msg-login");
 let alertCadastro = document.getElementById("msg-cadastro");
-let alertBusca = document.getElementById("msg-busca");
+let alertBusca = document.getElementById("msg-buscar-profissional");
 let alertRedefinirSenha = document.getElementById("msg-redefinir-senha");
 let alertDisponibilidadeOrcamento = document.getElementById("msg-disponibilidade-orcamento");
 let alertAgendamentoConfirmado = document.getElementById("msg-agendamento-confirmado");
@@ -47,9 +47,9 @@ let alertDisponibilidadeOrcamentoProfissional = document.getElementById("msg-dis
 let alertServicosAgendadosProfissional = document.getElementById("msg-servicos-agendados-profissional");
 let alertEditarDadosCliente = document.getElementById("msg-editar-perfil");
 let alertEditarDadosProfissional = document.getElementById("msg-editar-perfil-profissional");
+let alertDisponibilidadeProfissional = document.getElementById("msg-disponibilidade-do-profissional");
 // variaveis para guardar o serviço e profissional escolhido
 let servicoAtual;
-let profissionalSorteado;
 // variável para armazenar o nome do cliente logado e cpf do cliente logado
 let idUsuarioLogado = "";
 let nomeUsuarioLogado = "";
@@ -65,6 +65,8 @@ let telefoneProfissional = document.getElementById("telefone-profissional-perfil
 let cpfProfissionalLogado = "";
 let telefoneProfissionalLogado = "";
 let profissaoProfissionalLogado = "";
+// variável para acessar a profissão escolhida pelo cliente
+let profissaoBusca = document.getElementById("profissao");
 // Função simples para apagar a mensagem de erro após 3 segundos
 function apagarMensagem() {
     setTimeout(function() {
@@ -628,109 +630,98 @@ function salvarNovaSenha(){
     });
  }
 }
-// função para escolher o profissional
-function selecionarServico(servico) {
-    servicoAtual = servico
-    // chama a função para sortear o profissional
-    sorteioProfissional(servico);
+ // função para escolher o profissional
+function buscarProfissionais() {
+    // pega a profissão escolhida pelo cliente
+    let profissaoEscolhida = profissaoBusca.value;
 
-    // trocar de tela 
-    telaBusca.style.display = "none";
-    telaDisponibilidadeOrcamento.style.display = "block";
+    // busca os profissionais na API AgendJá
+    fetch("https://api-agendja.onrender.com/profissionais")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Erro ao buscar profissionais");
+            }
+            return response.json();
+        })
+        .then(dados => {
+            console.log(dados);
 
-    telaAtual = "disponibilidade-orcamento";
+            // filtra os profissionais pela profissão escolhida
+            let profissionaisFiltrados = dados.filter(
+                profissional => profissional.profissao === profissaoEscolhida
+            );
+
+            if (profissionaisFiltrados.length === 0) {
+                alertBusca.innerText = "Não há profissionais disponíveis para a profissão escolhida.";
+                apagarMensagem();
+            } else {
+                // busca as disponibilidades na API AgendJá
+                fetch("https://api-agendja.onrender.com/disponibilidade")
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Erro ao buscar disponibilidade");
+                        }
+                        return response.json();
+                    })
+                    .then(disponibilidades => {
+                        console.log(disponibilidades);
+
+                        // filtra as disponibilidades pelos profissionais filtrados
+                        let disponibilidadesFiltradas = disponibilidades.filter(
+                            disponibilidade =>
+                                profissionaisFiltrados.some(
+                                    profissional =>
+                                        profissional.id === disponibilidade.profissional_id
+                                )
+                        );
+
+                        if (disponibilidadesFiltradas.length === 0) {
+                            alertBusca.innerText = "Não há disponibilidade de horários para os profissionais da profissão escolhida.";
+                            apagarMensagem();
+                            return;
+                        }
+                        // troca a tela de perfil para a tela de disponibilidade e orçamento
+                        telaPerfil.style.display = "none";
+                        telaDisponibilidadeOrcamento.style.display = "block";
+                        telaAtual = "disponibilidade-orcamento";
+                        // mostra os profissionais e suas disponibilidades na tela,usando a div "disponibilidades-do-profissional"
+                        let disponibilidadesDoProfissional = document.getElementById("disponibilidades-do-profissional");
+                        disponibilidadesDoProfissional.innerHTML = "";
+
+                        disponibilidadesFiltradas.forEach(disponibilidade => {
+                            let profissional = profissionaisFiltrados.find(p => p.id === disponibilidade.profissional_id);
+                            if (profissional) {
+                                let elemento = document.createElement("div");
+                                elemento.innerHTML = `
+                                    <p>${profissional.nome}</p>
+                                    <p>Disponibilidade: ${formatarData(disponibilidade.data)} às ${disponibilidade.horario}</p>
+                                    <p>Valor: ${formatarOrcamento(disponibilidade)}</p>
+                                    <button id="btn-agendar" onclick="agendar()">Agendar</button>
+                                `;
+                             disponibilidadesDoProfissional.appendChild(elemento);                                   
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        console.error("Erro:", error);
+                    });
+            }
+        })
+        .catch(error => {
+            console.error("Erro:", error);
+        });
 }
-function outroProfissional() {
-    alertBusca.innerText = "Em breve serão cadastrados novos profissionais!";
-    apagarMensagem();
+// função para formatar o valor do orçamento para moeda brasileira exemplo: 100 para R$ 100,00
+function formatarOrcamento(disponibilidade) {
+    return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    }).format(disponibilidade.orcamento);
 }
-// constante para simular um banco de dados 
-// nomes de profissionais suas disponibilidades(datas e horario)
-// orçamento estipulado para o serviço
-const profissionaisPorServico = {
-    Pedreiro: [
-        {
-            nome: "João Silva",
-            data: "31/08/2026",
-            horario: "08:00h",
-            orcamento: "R$ 150,00"
-        },
-        {
-            nome: "Carlos Sousa ",
-            data: "31/08/2026",
-            horario: "13:30h",
-            orcamento: "R$ 180,00"
-        },
-         {
-            nome: "Mateus Oliveira ",
-            data: "01/09/2026",
-            horario: "10:30h",
-            orcamento: "R$ 180,00"
-        }
-    ],
-
-    Eletricista: [
-        {
-            nome: "Marcos Lima",
-            data: "02/09/2026",
-            horario: "14:00h",
-            orcamento: "R$ 120,00"
-        },
-        {
-            nome: "Lucas Mendes",
-            data: "03/09/2026",
-            horario: "15:00h",
-            orcamento: "R$ 140,00"
-        },
-         {
-            nome: "Luana Carvalho",
-            data: "03/09/2026",
-            horario: "15:30h",
-            orcamento: "R$ 150,00"
-        },
-    ],
-
-    Encanador: [
-        {
-            nome: "Roberto Alves",
-            data: "28/08/2026",
-            horario: "09:00h",
-            orcamento: "R$ 100,00"
-        },
-        {
-            nome: "Fernando Dias",
-            data: "01/09/2026",
-            horario: "14:00h",
-            orcamento: "R$ 130,00"
-        },
-         {
-            nome: "Larissa Ribeiro",
-            data: "04/09/2026",
-            horario: "14:20h",
-            orcamento: "R$ 150,00"
-        },
-    ]
-};
-// função para sortear um profissional
-function sorteioProfissional(servico) {
-
-    // 1. Pega a lista de profissionais da categoria escolhida
-    const lista = profissionaisPorServico[servico];
-    // 2. Sorteia uma posição aleatória da lista
-    const indiceSorteado = Math.floor(Math.random() * lista.length);
-    // 3. Pega o profissional daquela posição
-    profissionalSorteado = lista[indiceSorteado];
-    // 4. mostra na tela
-    tituloDisponibilidade.innerText = `Disponibilidade e Orçamento - ${servico}`;
-    profissional.innerText = `Nome do Profissional: ${profissionalSorteado.nome}`;
-    data.innerText = `Data Disponível: ${profissionalSorteado.data}`;
-    horario.innerText = `Horário Disponível: ${profissionalSorteado.horario}`;
-    orcamento.innerText = `Orçamento Estipulado: ${profissionalSorteado.orcamento}`;
-}
-// função nova disponibilidade e orçamento
-function nvDisponibilidadeOrcamento() {
-    // chama a função de sorteio para sortear outra disponibilidade 
-    sorteioProfissional(servicoAtual);
+// função para formatar a data para o formato brasileiro exemplo: 2024-06-01 para 01/06/2024
+function formatarData(data) {
+    let [ano, mes, dia] = data.split("-");
+    return `${dia}/${mes}/${ano}`;
 }
 // função para o botão agendar
 function agendar(){
@@ -760,7 +751,7 @@ function copiar() {
     alertAgendamentoConfirmado.className = "sucesso";
     apagarMensagem();   
 }
-// função para buscar serviços
+// função para o cliente buscar serviços(botão buscar serviço)
 function buscarServico() {
     telaPerfil.style.display = "none";
     telaBusca.style.display = "block";
@@ -951,13 +942,40 @@ function salvarDisponibilidadeOrcamento() {
         apagarMensagem();
         return;
     }
-    alertDisponibilidadeOrcamentoProfissional.innerText = "Disponibilidade e orçamento salvos com sucesso!";
-    alertDisponibilidadeOrcamentoProfissional.className = "sucesso";
-    apagarMensagem();
-    // Limpa os campos após salvar
-    document.getElementById("data-profissional").value = "";
-    document.getElementById("horario-profissional").value = "";
-    document.getElementById("orcamento-profissional").value = "";
+ // integra com a api agendjá para salvar a disponibilidade do profissional
+    fetch(`https://api-agendja.onrender.com/disponibilidade`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            profissional_id: idUsuarioLogado,
+            data: dataDisponivel,
+            horario: horarioDisponivel,
+            orcamento: orcamentoDisponivel
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Erro ao salvar disponibilidade e orçamento");
+        }
+        return response.json();
+    })
+    .then(dados => {
+        alertDisponibilidadeOrcamentoProfissional.innerText = "Disponibilidade e orçamento salvos com sucesso!";
+        alertDisponibilidadeOrcamentoProfissional.className = "sucesso";
+        apagarMensagem();
+        // Limpa os campos após salvar
+        document.getElementById("data-profissional").value = "";
+        document.getElementById("horario-profissional").value = "";
+        document.getElementById("orcamento-profissional").value = "";
+    })
+    .catch(erro => {
+        console.error(erro);
+        alertDisponibilidadeOrcamentoProfissional.innerText = "Não foi possível salvar a disponibilidade e o orçamento. Tente novamente.";
+        alertDisponibilidadeOrcamentoProfissional.className = "erro";
+        apagarMensagem();
+    });
 }
 // função para ver os serviços agendados do profissional
 function servicosProfissional() {
