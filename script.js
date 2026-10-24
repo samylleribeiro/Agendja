@@ -680,8 +680,8 @@ function buscarProfissionais() {
                             apagarMensagem();
                             return;
                         }
-                        // troca a tela de perfil para a tela de disponibilidade e orçamento
-                        telaPerfil.style.display = "none";
+                        // troca a tela de busca para a tela de disponibilidade e orçamento
+                        telaBusca.style.display = "none";
                         telaDisponibilidadeOrcamento.style.display = "block";
                         telaAtual = "disponibilidade-orcamento";
                         // mostra os profissionais e suas disponibilidades na tela,usando a div "disponibilidades-do-profissional"
@@ -696,8 +696,13 @@ function buscarProfissionais() {
                                     <p>${profissional.nome}</p>
                                     <p>Disponibilidade: ${formatarData(disponibilidade.data)} às ${disponibilidade.horario}</p>
                                     <p>Valor: ${formatarOrcamento(disponibilidade)}</p>
-                                    <button id="btn-agendar" onclick="agendar()">Agendar</button>
+                                    <button>Agendar</button>
                                 `;
+                                // adiciona o evento de clique no botão "Agendar" para chamar a função agendar com os dados do profissional e da disponibilidade
+                                let botaoAgendar = elemento.querySelector("button");
+                              botaoAgendar.onclick = function() {
+                              agendar(profissional, disponibilidade);
+                              }; 
                              disponibilidadesDoProfissional.appendChild(elemento);                                   
                             }
                         });
@@ -724,20 +729,58 @@ function formatarData(data) {
     return `${dia}/${mes}/${ano}`;
 }
 // função para o botão agendar
-function agendar(){
+function agendar(profissional, disponibilidade){
    let confirmacao = confirm(
-        `Você está agendando com o(a) ${servicoAtual}: ${profissionalSorteado.nome} para ${profissionalSorteado.data} às ${profissionalSorteado.horario} no valor de ${profissionalSorteado.orcamento}.\n\nConfirmar Agendamento?`
+    "Você está agendando o serviço de " + profissaoBusca.value +
+    "\nProfissional: " + profissional.nome +
+    "\nData: " + formatarData(disponibilidade.data) +
+    "\nHorário: " + disponibilidade.horario +
+    "\nOrçamento: " + formatarOrcamento(disponibilidade) +
+    "\n\nTem certeza que deseja prosseguir?"
     );
-
+ // se o usuário confirmar, chama a api para salvar o agendamento
     if (confirmacao) {
-        let textoResumo = `Agendamento confirmado para: ${servicoAtual}\nProfissional: ${profissionalSorteado.nome}\nData/Horário: ${profissionalSorteado.data} às ${profissionalSorteado.horario}\nValor: ${profissionalSorteado.orcamento}`;
-
-        resumoAgendado.innerText = textoResumo;
-        localStorage.setItem("agendamento_" + cpfUsuarioLogado, textoResumo);
-
-        telaDisponibilidadeOrcamento.style.display = "none";
-        telaAgendamentoConfirmado.style.display = "block";
-        telaAtual = "agendamento-confirmado";
+        // Integra com a api agendjá para salvar o agendamento
+        fetch("https://api-agendja.onrender.com/agendamentos", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                 cliente_id: Number(idUsuarioLogado),
+                 profissional_id: profissional.id,
+                 servico: profissaoBusca.value,
+                 data: disponibilidade.data,
+                 horario: disponibilidade.horario,
+                 orcamento: disponibilidade.orcamento,
+                 status: "Pendente"
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error("Erro ao salvar agendamento");
+        })
+        .then(dados => {
+            console.log("Agendamento salvo com sucesso:", dados);
+            // troca a tela de disponibilidade e orçamento para a tela de agendamento confirmado
+            telaDisponibilidadeOrcamento.style.display = "none";
+            telaAgendamentoConfirmado.style.display = "block";
+            telaAtual = "agendamento-confirmado";
+            // Exibe mensagem com os detalhes do agendamento na tela de agendamento confirmado
+            resumoAgendado.innerHTML = `
+                <p>Serviço: ${profissaoBusca.value}</p>
+                <p>Profissional: ${profissional.nome}</p>
+                <p>Data: ${formatarData(disponibilidade.data)}</p>
+                <p>Horário: ${disponibilidade.horario}</p>
+                <p>Orçamento: ${formatarOrcamento(disponibilidade)}</p>
+            `;
+   
+        })
+        .catch(error => {
+            console.error("Erro:", error);
+        });
     }
 }
 // função para copiar agendamento
