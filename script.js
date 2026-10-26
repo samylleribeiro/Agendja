@@ -805,20 +805,60 @@ function servicosAgendados() {
     telaPerfil.style.display = "none";
     telaServicosAgendados.style.display = "block";
     telaAtual = "servicos-agendados";
+    // integra com a api para mostrar os agendamentos confirmados de um cliente logado, usando o id do cliente logado
+    fetch(`https://api-agendja.onrender.com/agendamentos/cliente/${idUsuarioLogado}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Erro ao buscar agendamentos");
+        }
+        return response.json();
+    })
+    .then(agendamentos => {
+        // verifica se há agendamentos
+        if (agendamentos.length === 0) {
+            alertServicosAgendados.innerText = "Você não possui agendamentos confirmados.";
+            return;
+        }   // Busca a lista de profissionais
+            fetch("https://api-agendja.onrender.com/profissionais")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Erro ao buscar profissionais");
+                    }
+                    return response.json();
+                })
+                .then(profissionais => {
 
-    let agendamentoSalvo = localStorage.getItem("agendamento_" + cpfUsuarioLogado);
+                    // Encontra o nome do profissional pelo ID
+                    agendamentos.forEach(agendamento => {
+                        const profissional = profissionais.find(
+                            p => p.id === agendamento.profissional_id
+                        );
 
-    if (agendamentoSalvo) {
-        // Se houver um agendamento salvo, exibe-o na tela
-        // usa o <br> para quebrar linha no HTML
-        agendamentoSalvo = agendamentoSalvo.replace(/\n/g, "<br>");
-        listaServicosAgendados.innerHTML = `${agendamentoSalvo} <br><br>
-        <button onclick="cancelarAgendamento()">🗑️ Cancelar Agendamento</button>
-        <button onclick="irParaAvaliacao()">⭐ Avaliar Serviço</button>
-        `;
-    } else {
-        listaServicosAgendados.innerHTML = "Vc ainda não tem serviços agendados.";
-    }
+                        if (profissional) {
+                            agendamento.profissional = profissional.nome;
+                        }
+                    });
+
+                    // Mostra os agendamentos na tela
+                    listaServicosAgendados.innerHTML = "";
+                    alertServicosAgendados.innerText = "";
+
+                    agendamentos.forEach(agendamento => {
+                       listaServicosAgendados.innerHTML += `
+                            <div class="agendamento">
+                                <p>Serviço: ${formatarProfissao(agendamento.servico)}</p>
+                                <p>Profissional: ${agendamento.profissional || "Não encontrado"}</p>
+                                <p>Data: ${formatarData(agendamento.data)}</p>
+                                <p>Horário: ${agendamento.horario}</p>
+                                <p>Orçamento: ${formatarOrcamento(agendamento)}</p>                            
+                            </div>
+                        `;
+                    });
+                });
+        })
+        .catch(error => {
+            console.error("Erro:", error);
+        });
 }
 // Função do botão Cancelar Agendamento
 function cancelarAgendamento() {
@@ -1263,6 +1303,26 @@ function mostrarProfissaoProfissional() {
         profissaoProfissional.innerText = "Profissão: Montador(a) de Móveis";
     } else {
     profissaoProfissional.innerText = `Profissão: ${profissaoProfissionalLogado}`;
+    }
+}
+// função para formatar a profissão do profissional no perfil do profissional, para mostrar a primeira letra maiúscula e o restante minúsculo
+function formatarProfissao(profissao) {
+     if (profissao === "eletricista") {
+        return "Eletricista";
+    } else if (profissao === "encanador") {
+        return "Encanador(a)";
+    } else if (profissao === "pintor") {
+        return "Pintor(a)";
+    } else if (profissao === "pedreiro") {
+        return "Pedreiro(a)";
+    } else if (profissao === "jardineiro") {
+        return "Jardineiro(a)";
+    } else if (profissao === "mecanico") {
+        return "Mecânico(a)";
+    } else if (profissao === "montador") {
+        return "Montador(a) de Móveis";
+    } else {
+        return profissao;
     }
 }
 // função para caso usuário esqueça a senha
