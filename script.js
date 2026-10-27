@@ -26,6 +26,7 @@ let orcamento = document.getElementById("orcamento");
 let resumoAgendado = document.getElementById("resumo-agendado");
 let nomeUsuario = document.getElementById("nome-usuario");
 let listaServicosAgendados = document.getElementById("servicos-agendados");
+let listaServicosAgendadosProfissional = document.getElementById("lista-servicos-profissional");
 let avaliacaoRealizada = document.getElementById("avaliacao-realizada");
 // botões de navegação
 let btnLogin = document.getElementById("btn-logar");
@@ -1065,6 +1066,53 @@ function servicosProfissional() {
     telaPerfilProfissional.style.display = "none";
     telaServicosAgendadosProfissional.style.display = "block";
     telaAtual = "servicos-agendados-profissional";
+    // integra com a api para mostrar os agendamentos confirmados de um profissional logado, usando o id do profissional logado
+    fetch(`https://api-agendja.onrender.com/agendamentos/profissional/${idUsuarioLogado}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Erro ao carregar os serviços agendados");
+        }
+        return response.json();
+    })
+  .then(dados => {
+    // verifica se há agendamentos
+    if (dados.length === 0) {
+        alertServicosAgendadosProfissional.innerText =
+            "Você não possui agendamentos confirmados.";
+        return;
+    }
+
+    // busca os clientes para encontrar seus nomes
+    fetch("https://api-agendja.onrender.com/clientes")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Erro ao buscar clientes");
+            }
+            return response.json();
+        })
+        .then(clientes => {
+            listaServicosAgendadosProfissional.innerHTML = "";
+
+            dados.forEach(agendamento => {
+                const cliente = clientes.find(
+                    c => c.id === agendamento.cliente_id
+                );
+
+                listaServicosAgendadosProfissional.innerHTML += `
+                    <div class="agendamento">
+                        <p>Serviço: ${formatarProfissao(agendamento.servico)}</p>
+                        <p>Cliente: ${cliente ? cliente.nome : "Não encontrado"}</p>
+                        <p>Data: ${formatarData(agendamento.data)}</p>
+                        <p>Horário: ${agendamento.horario}</p>
+                        <p>Orçamento: ${formatarOrcamento(agendamento)}</p>
+                    </div>
+                `;
+            });
+        })
+        .catch(erro => {
+            console.error("Erro ao buscar clientes:", erro);
+        });
+   })     
 }
 // função para validar o CPF
 function validarCPF(cpf) {
