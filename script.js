@@ -817,6 +817,7 @@ function servicosAgendados() {
     .then(agendamentos => {
         // verifica se há agendamentos
         if (agendamentos.length === 0) {
+            listaServicosAgendados.innerHTML = "";
             alertServicosAgendados.innerText = "Você não possui agendamentos confirmados.";
             return;
         }   // Busca a lista de profissionais
@@ -851,7 +852,8 @@ function servicosAgendados() {
                                 <p>Profissional: ${agendamento.profissional || "Não encontrado"}</p>
                                 <p>Data: ${formatarData(agendamento.data)}</p>
                                 <p>Horário: ${agendamento.horario}</p>
-                                <p>Orçamento: ${formatarOrcamento(agendamento)}</p>                            
+                                <p>Orçamento: ${formatarOrcamento(agendamento)}</p> 
+                                <button onclick="deletarAgendamento(${agendamento.id})">🗑️</button>                          
                             </div>
                         `;
                     });
@@ -862,21 +864,40 @@ function servicosAgendados() {
         });
 }
 // Função do botão Cancelar Agendamento
-function cancelarAgendamento() {
-    // Confirmação do usuário antes de cancelar o agendamento
-    let confirmacao = confirm("Tem certeza de que deseja cancelar este agendamento?");
-    // Se o usuário confirmar, remove o agendamento do localStorage
+function deletarAgendamento(idAgendamento) {
+    // usa o confirm para o usuário confirmar se deseja se realmente cancelar o agendamento
+    let confirmacao = confirm(
+    "Tem certeza que deseja cancelar este agendamento?"
+    );
+    // se confirmar
     if (confirmacao) {
-        localStorage.removeItem("agendamento_" + cpfUsuarioLogado);
-       // mostra mensagem de sucesso na tela de serviços agendados
-        alertServicosAgendados.innerText = "Agendamento cancelado com sucesso!";
-        alertServicosAgendados.className = "sucesso";
-        apagarMensagem();
-    // Atualiza a tela de serviços agendados
-        servicosAgendados();
+    // integra com api para deletar o agendamento    
+       fetch(`https://api-agendja.onrender.com/agendamentos/${idAgendamento}`, {
+                method: "DELETE"
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Erro ao excluir o agendamento");
+                }
+                return response.json();
+            })
+            .then(dados => {
+                console.log(dados);
+               // se tela atual for a tela que mostra os agendamentos na tela para o cliente
+               if (telaAtual === "servicos-agendados") {
+               // chama a função que mostra os agendamentos na tela de perfil do cliente
+               servicosAgendados()
+               // se a tela atual for a tela que mostra os agendamentos na tela para o profissional
+               } else if (telaAtual === "servicos-agendados-profissional"){
+              // chama a função que mostra os agendamentos na tela de perfil do profissional
+              servicosProfissional()
+               }
+            })
+            .catch(erro => {
+                console.error(erro);
+            });
+        }
     }
-    // Se o usuário não confirmar, apenas retorna para a tela de serviços agendados
-}
 // Função para ir para a tela de avaliação
 function irParaAvaliacao() {
     telaServicosAgendados.style.display = "none";
@@ -1077,6 +1098,7 @@ function servicosProfissional() {
   .then(dados => {
     // verifica se há agendamentos
     if (dados.length === 0) {
+        listaServicosAgendadosProfissional.innerHTML = "";
         alertServicosAgendadosProfissional.innerText =
             "Você não possui agendamentos confirmados.";
         return;
@@ -1105,6 +1127,7 @@ function servicosProfissional() {
                         <p>Data: ${formatarData(agendamento.data)}</p>
                         <p>Horário: ${agendamento.horario}</p>
                         <p>Orçamento: ${formatarOrcamento(agendamento)}</p>
+                        <button onclick="deletarAgendamento(${agendamento.id})">🗑️</button>
                     </div>
                 `;
             });
