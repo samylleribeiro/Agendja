@@ -236,6 +236,7 @@
       <div id="botoes-perfil-profissional">
     <button id="btn-disponibilidade-profissional" onclick="disponibilidadeProfissional()">Definir Disponibilidade e Orçamento</button>   
     <button id="btn-servicos-agendados-profissional" onclick="servicosProfissional()">Meus Serviços Agendados</button>
+    <button id="btn-minhas-avaliacoes" onclick="minhasAvaliacoes()"> Minhas Avaliações</button>
     <button id="btn-redefinir-senha-perfil-profissional" onclick="redefinirSenhaPerfilProfissional()">Redefinir Senha</button>
     <button id="btn-editar-dados-profissional" onclick="editarDadosProfissional()">Editar dados</button>
     <button id="btn-excluir-conta-perfil-profissional" onclick="excluirContaProfissional()">Excluir Conta</button>
@@ -298,14 +299,18 @@
 </div>
 <!-- Tela de Meus Serviços Agendados para o Profissional -->
 <div id="tela-servicos-agendados-profissional" style="display: none;">
-    <h2>Meus Serviços Agendados</h2>
-    
+    <h2>Meus Serviços Agendados</h2>  
     <div id="lista-servicos-profissional">
     </div>
-
     <p id="msg-servicos-agendados-profissional"></p>
 </div>
-
+<!-- Tela para mostrar ao profissional as avaliações para o profissional -->
+ <div id="tela-avaliacoes-profissional" style="display: none;">
+    <h2>Minhas avaliações</h2>  
+    <div id="lista-avaliacoes-profissional">
+    </div>
+    <p id="msg-avaliacoes"></p>
+</div>
 
 
     <script src="script.js"></script>
