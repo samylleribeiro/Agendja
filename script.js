@@ -18,6 +18,7 @@ let telaDisponibilidadeOrcamentoProfissional = document.getElementById("tela-dis
 let telaServicosAgendadosProfissional = document.getElementById("tela-servicos-agendados-profissional");
 let telaEditarDadosCliente = document.getElementById("tela-editar-perfil");
 let telaEditarDadosProfissional = document.getElementById("tela-editar-perfil-profissional");
+let telaAvaliacoesServico = document.getElementById("tela-avaliacoes-profissional");
 let tituloDisponibilidade = document.getElementById("titulo-disponibilidade");
 let profissional = document.getElementById("profissional");
 let data = document.getElementById("data");
@@ -26,6 +27,7 @@ let orcamento = document.getElementById("orcamento");
 let resumoAgendado = document.getElementById("resumo-agendado");
 let nomeUsuario = document.getElementById("nome-usuario");
 let listaServicosAgendados = document.getElementById("servicos-agendados");
+let listaAvaliacoesProfissional = document.getElementById("lista-avaliacoes-profissional");
 let listaServicosAgendadosProfissional = document.getElementById("lista-servicos-profissional");
 let avaliacaoRealizada = document.getElementById("avaliacao-realizada");
 // botões de navegação
@@ -49,6 +51,7 @@ let alertServicosAgendadosProfissional = document.getElementById("msg-servicos-a
 let alertEditarDadosCliente = document.getElementById("msg-editar-perfil");
 let alertEditarDadosProfissional = document.getElementById("msg-editar-perfil-profissional");
 let alertDisponibilidadeProfissional = document.getElementById("msg-disponibilidade-do-profissional");
+let alertAvaliacoesServicos = document.getElementById("msg-avaliacoes")
 // variaveis para guardar o serviço e profissional escolhido
 let servicoAtual;
 // variável para armazenar o nome do cliente logado e cpf do cliente logado
@@ -176,8 +179,11 @@ function voltar() {
     telaEditarDadosProfissional.style.display = "none";
     telaPerfilProfissional.style.display = "block";
     telaAtual = "perfil-profissional"
-  } 
-   
+  } else if (telaAtual === "avaliacoes-profissional") {
+    telaAvaliacoesServico.style.display = "none";
+    telaPerfilProfissional.style.display = "block";
+    telaAtual = "perfil-profissional";
+  }  
 }
 // função para o botão de logar
 function logar() {
@@ -802,6 +808,7 @@ function buscarServico() {
 
     telaAtual = "buscar-profissional";
 }
+// função para mostrar ao cliente seus serviços agendados
 function servicosAgendados() {
     telaPerfil.style.display = "none";
     telaServicosAgendados.style.display = "block";
@@ -853,7 +860,8 @@ function servicosAgendados() {
                                 <p>Data: ${formatarData(agendamento.data)}</p>
                                 <p>Horário: ${agendamento.horario}</p>
                                 <p>Orçamento: ${formatarOrcamento(agendamento)}</p> 
-                                <button onclick="deletarAgendamento(${agendamento.id})">🗑️</button>                          
+                                <button onclick="deletarAgendamento(${agendamento.id})">🗑️</button>
+                                <button onclick="irParaAvaliacao(${agendamento.id}, ${agendamento.profissional_id})">⭐</button>                          
                             </div>
                         `;
                     });
@@ -898,8 +906,16 @@ function deletarAgendamento(idAgendamento) {
             });
         }
     }
+// Guarda o ID do agendamento que será avaliado
+let idAgendamentoAvaliado;
+let idProfissionalAvaliado;
 // Função para ir para a tela de avaliação
-function irParaAvaliacao() {
+function irParaAvaliacao(idAgendamento,idProfissional) {
+    // pega o id do atendimento que será avaliado 
+    idAgendamentoAvaliado = idAgendamento;
+    idProfissionalAvaliado = idProfissional;
+
+    // troca de telas
     telaServicosAgendados.style.display = "none";
     telaAvaliacao.style.display = "block";
     telaAtual = "avaliacao";
@@ -912,15 +928,66 @@ function irParaAvaliacao() {
 }
 // Função para enviar a avaliação
 function enviarAvaliacao(avaliacao) {
-//alerta de sucesso na tela de avaliação
-    alertAvaliacao.innerText = "Obrigado por avaliar o serviço! Sua avaliação foi registrada com sucesso.";
-    alertAvaliacao.className = "sucesso";
-    apagarMensagem();
 
-//coloca a avaliação na tela de serviços agendados
- avaliacaoRealizada.innerText = `Sua avaliação: ${avaliacao}`;
- // Salva a avaliação no localStorage vinculando ao CPF do usuário logado
- localStorage.setItem("avaliacao_" + cpfUsuarioLogado, avaliacaoRealizada.innerText);
+    // Pega o atendimento que será avaliado
+    let idAgendamento = idAgendamentoAvaliado;
+
+    //verifica se esse atendimento já foi avaliado
+    fetch(`https://api-agendja.onrender.com/avaliacoes/${idProfissionalAvaliado}`)
+    .then(resposta => {
+        if (!resposta.ok) {
+            throw new Error("Erro ao consultar avaliações");
+        }
+
+        return resposta.json();
+    })
+    .then(avaliacoes => {
+
+        // Verifica se já existe avaliação para esse agendamento
+        let jaAvaliado = avaliacoes.some(item =>
+            Number(item.agendamento_id) === Number(idAgendamento)
+        );
+
+        if (jaAvaliado) {
+            alertAvaliacao.innerText = "Esse atendimento já foi avaliado!";
+            alertAvaliacao.className = "erro";
+            apagarMensagem();
+            return;
+        }
+
+        // Se ainda não foi avaliado, envia a avaliação
+        return fetch("https://api-agendja.onrender.com/avaliacoes", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                cliente_id: Number(idUsuarioLogado),
+                profissional_id: idProfissionalAvaliado,
+                agendamento_id: idAgendamento,
+                avaliacao: avaliacao
+            })
+        })
+        .then(resposta => {
+            if (!resposta.ok) {
+                throw new Error("Erro ao avaliar um serviço");
+            }
+
+            return resposta.json();
+        })
+        .then(dados => {
+            console.log(dados);
+            alertAvaliacao.innerText = "Avaliação salva";
+            alertAvaliacao.className = "sucesso";
+            apagarMensagem();
+        });
+    })
+    .catch(erro => {
+        console.error(erro);
+        alertAvaliacao.innerText = "Não foi possível realizar a avaliação desse atendimento.";
+        alertAvaliacao.className = "erro";
+        apagarMensagem();
+    });
 }
 // função para o botão de cadastro de profissional
 function cadastrarProfissional() {
@@ -1396,6 +1463,42 @@ function formatarProfissao(profissao) {
         return profissao;
     }
 }
+// função para mostrar as avaliações dos serviços para o profissional
+function minhasAvaliacoes() {
+// muda as telas 
+telaPerfilProfissional.style.display = "none";
+telaAvaliacoesServico.style.display = "block";
+telaAtual = "avaliacoes-profissional";
+// integra com a api para mostrar as avalições 
+  fetch(`https://api-agendja.onrender.com/avaliacoes/${idUsuarioLogado}`)
+    .then(resposta => {
+        if (!resposta.ok) {
+            throw new Error("Erro ao buscar avaliações");
+        }
+
+        return resposta.json();
+    })
+    .then(avaliacoes => {
+        console.log(avaliacoes);
+
+        if (avaliacoes.length === 0) {
+            listaAvaliacoesProfissional.innerHTML = "Você ainda não possui avaliações.";
+            return;
+        }
+
+        listaAvaliacoesProfissional.innerHTML = avaliacoes.map(item => `
+            <div>
+                <p>⭐ Avaliação: ${item.avaliacao}</p>
+                <p>Agendamento: ${item.agendamento_id}</p>
+            </div>
+        `).join("");
+    })
+    .catch(erro => {
+        console.error(erro);
+        listaAvaliacoesProfissional.innerHTML = "Não foi possível carregar as avaliações.";
+    });
+}
+
 // função para caso usuário esqueça a senha
 function esqueciSenha() {
 alert("Em breve você poderá redefinir sua senha, aguarde a próxima atualização do sistema!");
