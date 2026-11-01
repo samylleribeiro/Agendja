@@ -304,14 +304,45 @@
     </div>
     <p id="msg-servicos-agendados-profissional"></p>
 </div>
-<!-- Tela para mostrar ao profissional as avaliações para o profissional -->
+<!-- Tela para mostrar ao profissional as avaliações que recebeu do cliente -->
  <div id="tela-avaliacoes-profissional" style="display: none;">
     <h2>Minhas avaliações</h2>  
     <div id="lista-avaliacoes-profissional">
     </div>
     <p id="msg-avaliacoes"></p>
 </div>
-
+<!-- Tela de redefinir senha do usuário estando na tela de login -->
+<div id="tela-redefinir-senha-usuario" style="display: none;">
+    <h2>Redefinir Senha</h2>
+    <div id="inputs-redefinir-senha-usuario">
+        <div>
+            <label for="nome-redefinir-senha-usuario">Nome:</label>
+            <input type="text" id="nome-redefinir-senha-usuario" placeholder="Digite seu nome">
+        </div>
+        <div>
+            <label for="cpf-redefinir-senha-usuario">CPF:</label>
+            <input type="text" id="cpf-redefinir-senha-usuario" maxlength="11" inputmode="numeric" placeholder="Digite seu CPF">
+        </div>
+         <div>
+            <label for="tipo-usuario">Selecione o Tipo de Usuário:</label>
+            <select id="tipo-usuario">
+                <option value="">Tipo de usuário</option>
+                <option value="cliente">Cliente</option>
+                <option value="profissional">Profissional</option>
+            </select>
+        </div>
+        <div>
+            <label for="nova-senha-usuario">Nova Senha:</label>
+            <input type="password" id="nova-senha-usuario" placeholder="Digite sua nova senha">
+        </div>
+        <div>
+            <label for="confirmar-nova-senha-usuario">Confirmar Nova Senha:</label>
+            <input type="password" id="confirmar-nova-senha-usuario" placeholder="Confirme sua nova senha">
+        </div>
+    </div>
+    <p id="msg-redefinir-senha-usuario"></p>
+    <button onclick="redefinirSenhaUsuario()">Redefinir Senha</button>
+</div>
 
     <script src="script.js"></script>
 </body>
