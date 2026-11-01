@@ -19,6 +19,7 @@ let telaServicosAgendadosProfissional = document.getElementById("tela-servicos-a
 let telaEditarDadosCliente = document.getElementById("tela-editar-perfil");
 let telaEditarDadosProfissional = document.getElementById("tela-editar-perfil-profissional");
 let telaAvaliacoesServico = document.getElementById("tela-avaliacoes-profissional");
+let telaRedefinirSenhaLogin = document.getElementById("tela-redefinir-senha-usuario");
 let tituloDisponibilidade = document.getElementById("titulo-disponibilidade");
 let profissional = document.getElementById("profissional");
 let data = document.getElementById("data");
@@ -52,6 +53,7 @@ let alertEditarDadosCliente = document.getElementById("msg-editar-perfil");
 let alertEditarDadosProfissional = document.getElementById("msg-editar-perfil-profissional");
 let alertDisponibilidadeProfissional = document.getElementById("msg-disponibilidade-do-profissional");
 let alertAvaliacoesServicos = document.getElementById("msg-avaliacoes")
+let alertRedefinirSenhaLogin = document.getElementById("msg-redefinir-senha-usuario");
 // variaveis para guardar o serviço e profissional escolhido
 let servicoAtual;
 // variável para armazenar o nome do cliente logado e cpf do cliente logado
@@ -88,6 +90,7 @@ function apagarMensagem() {
         alertDisponibilidadeOrcamentoProfissional.innerText = "";
         alertEditarDadosCliente.innerText = "";
         alertEditarDadosProfissional.innerText = "";
+        alertRedefinirSenhaLogin.innerText = "";
     }, 3000); // 3000 milissegundos = 3 segundos
 }
 
@@ -183,7 +186,11 @@ function voltar() {
     telaAvaliacoesServico.style.display = "none";
     telaPerfilProfissional.style.display = "block";
     telaAtual = "perfil-profissional";
-  }  
+  }  else if (telaAtual === "redefinir-senha-usuario") {
+    telaRedefinirSenhaLogin.style.display = "none";
+    telaLogin.style.display = "block";
+    telaAtual = "login";
+  }
 }
 // função para o botão de logar
 function logar() {
@@ -921,9 +928,9 @@ function irParaAvaliacao(idAgendamento,idProfissional) {
     telaAtual = "avaliacao";
 
     document.getElementById("botoes-avaliacao").innerHTML = `
-    <button onclick="enviarAvaliacao('Excelente')">Excelente</button>
-    <button onclick="enviarAvaliacao('Boa')">Boa</button>
-    <button onclick="enviarAvaliacao('Ruim/Pessimo')">Ruim</button>
+    <button id="excelente" onclick="enviarAvaliacao('Excelente')">Excelente</button>
+    <button id="boa" onclick="enviarAvaliacao('Boa')">Boa</button>
+    <button id="ruim" onclick="enviarAvaliacao('Ruim/Pessimo')">Ruim</button>
     `;
 }
 // Função para enviar a avaliação
@@ -1499,7 +1506,91 @@ telaAtual = "avaliacoes-profissional";
     });
 }
 
-// função para caso usuário esqueça a senha
+// função para ir para a tela de redefinir senha do usuário
 function esqueciSenha() {
-alert("Em breve você poderá redefinir sua senha, aguarde a próxima atualização do sistema!");
+    telaLogin.style.display = "none";
+    telaRedefinirSenhaLogin.style.display = "block";
+    telaAtual = "redefinir-senha-usuario";
+}
+// função para redefinir a senha do usuário(cliente ou profissional) caso ele tenha esquecido a senha, usando o cpf e o nome para validar se é o usuário correto
+function redefinirSenhaUsuario() {
+    // pega os valores dos campos de redefinir senha
+    let nome = document.getElementById("nome-redefinir-senha-usuario").value.trim();
+    let cpf = document.getElementById("cpf-redefinir-senha-usuario").value.trim();
+    let novaSenha = document.getElementById("nova-senha-usuario").value;
+    let confirmarNovaSenha = document.getElementById("confirmar-nova-senha-usuario").value;
+    let tipoUsuario = document.getElementById("tipo-usuario").value;
+   // 1. validação simples dos campos não preenchidos
+    if (validarCamposVazios(cpf) || validarCamposVazios(nome) || validarCamposVazios(novaSenha) || validarCamposVazios(confirmarNovaSenha) || validarCamposVazios(tipoUsuario) ) {
+        alertRedefinirSenhaLogin.innerText = "Por favor, preencha todos os campos!";
+        alertRedefinirSenhaLogin.className = "erro";
+        apagarMensagem();
+        return;
+    }
+    // 2. validação do cpf
+    if (!validarCPF(cpf)) {
+        alertRedefinirSenhaLogin.innerText = "CPF inválido!";
+        alertRedefinirSenhaLogin.className = "erro";
+        apagarMensagem();
+        return;
+    }
+    // 3. validação do nome (apenas letras e espaços)
+    if (!validarNome(nome)) {
+        alertRedefinirSenhaLogin.innerText = "Nome inválido! Digite apenas letras e espaços.";
+        alertRedefinirSenhaLogin.className = "erro";
+        apagarMensagem();
+        return;
+    }
+    // 4. validação se senha e confirmação de senha são iguais
+    if (novaSenha !== confirmarNovaSenha) {
+        alertRedefinirSenhaLogin.innerText = "Senha e confirmação não coincidem!";
+        alertRedefinirSenhaLogin.className = "erro";
+        apagarMensagem();
+        return;
+    }
+    // Integra com a api agendjá para redefinir a senha do usuário(cliente ou profissional)
+   fetch(`https://api-agendja.onrender.com/redefinir-senha`, {
+   // metodo post para enviar os dados para a api
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        nome: nome,
+        cpf: cpf,
+        novaSenha: novaSenha,
+        tipo: tipoUsuario
+    })
+})
+.then(async response => {
+    const dados = await response.json();
+
+    if (!response.ok) {
+        throw new Error(dados.error || "Erro ao redefinir a senha");
+    }
+
+    return dados;
+})
+.then(dados => {
+    // limpa os campos
+    document.getElementById("nome-redefinir-senha-usuario").value = "";
+    document.getElementById("cpf-redefinir-senha-usuario").value = "";
+    document.getElementById("nova-senha-usuario").value = "";
+        document.getElementById("confirmar-nova-senha-usuario").value = "";
+        document.getElementById("tipo-usuario").value = "";
+        // volta para a tela de login
+        telaRedefinirSenhaLogin.style.display = "none";
+        telaLogin.style.display = "block";
+        telaAtual = "login";
+        // mostra mensagem de sucesso na tela de login
+        alertLogin.innerText = "Senha redefinida com sucesso! Faça seu login.";
+        alertLogin.className = "sucesso";
+        apagarMensagem();
+    })
+    .catch(erro => {
+        console.error(erro);
+        alertRedefinirSenhaLogin.innerText =  erro.message;
+        alertRedefinirSenhaLogin.className = "erro";
+        apagarMensagem();
+    })
 }
