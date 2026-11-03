@@ -19,7 +19,8 @@ Projeto desenvolvido em equipe como parte do Projeto Integrador 2 (PI2). Apresen
 - Visualização de serviços agendados.
 - Cancelamento de agendamento.
 - Avaliação do serviço.
-- Redefinição de senha.
+- Redefinição de senha pela tela de perfil.
+- Redefinição de senha pela tela de login.
 - Editar os dados
 - Exclusão de conta.
 
@@ -29,9 +30,25 @@ Projeto desenvolvido em equipe como parte do Projeto Integrador 2 (PI2). Apresen
 - Visualização do perfil profissional.
 - Definição de disponibilidade e orçamento.
 - Visualização de serviços agendados.
-- Redefinição de senha.
+- Cancelamento de agendamento.
+- Visualização das avaliações recebidas.
+- Redefinição de senha pela tela de perfil do profissional.
+- Redefinição de senha pela tela de login.
 - Editar seus dados
 - Exclusão de conta.
+
+## 🖥️ Telas do sistema
+
+- Tela inicial.
+- Telas de cadastro(cliente/profissional).
+- Tela de login.
+- Telas de recuperação de senha(pela tela de login).
+- Tela de perfil do cliente.
+- Tela de perfil do profissional.
+- Telas de redifinição de senha(com usuário logado).
+- Tela de busca e seleção de serviços.
+- Tela de agendamentos.
+- Tela de avaliações.
 
 ## Validações implementadas
 validarCPF(): verifica se o CPF possui 11 dígitos numéricos e bloqueia sequências de números repetidos.
@@ -39,11 +56,8 @@ validarTelefone(): verifica se o telefone possui 10 ou 11 dígitos numéricos, a
 validarCamposVazios(): verifica se os campos obrigatórios foram preenchidos.
 validarNome(): permite somente letras e espaços no nome.
 
-## 📂 Próximas etapas (Back-end)
-- [ ] Criação das rotas de API com Node.js/Express.
-- [ ] Criação das tabelas obrigatórias para o banco de dados
-- [ ] Conexão do back-end com o banco de dados.
-- [ ] Integração entre o front-end e o back-end.
+## 📂 Próximas etapas
+- [ ] Publicação na plataforma Vercel.
 
 ## Observação importante:
-O front-end foi desenvolvido inicialmente de forma independente. A integração com o back-end será realizada em uma etapa posterior.
+Esse front-end está integrado à API do AgendJá, desenvolvida com Node.js e Express, com publicação no Render.
