@@ -252,7 +252,14 @@ function finalizarCadastro() {
         apagarMensagem();
         return;
     }
-    // 5. Validação se senha e confirmação são iguais
+    // 5. Validação da senha (mínimo 6 caracteres)
+    if (!validarSenha(senha)) {
+        alertCadastro.innerText = "Senha inválida! Digite pelo menos 6 caracteres.";
+        alertCadastro.className = "erro";
+        apagarMensagem();
+        return;
+    }
+    // 6. Validação se senha e confirmação são iguais
     if (senha !== confirmacaoSenha) {
         alertCadastro.innerText = "Senha e confirmação não coincidem!";
         alertCadastro.className = "erro";
@@ -555,6 +562,13 @@ function salvarNovaSenha(){
  //validação do cpf digitado
     if (!validarCPF(cpf)) {
         alertRedefinirSenha.innerText = "CPF inválido!";
+        alertRedefinirSenha.className = "erro";
+        apagarMensagem();
+        return;
+    }
+    // validação da nova senha (mínimo 6 caracteres)
+    if (!validarSenha(novaSenha)) {
+        alertRedefinirSenha.innerText = "Nova senha inválida! Digite pelo menos 6 caracteres.";
         alertRedefinirSenha.className = "erro";
         apagarMensagem();
         return;
@@ -1046,7 +1060,14 @@ function finalizarCadastroProfissional() {
         apagarMensagem();
         return;
     }
-    // 5. validação da senha
+    // 5. validação se senha
+    if (!validarSenha(senha)) {
+        alertCadastroProfissional.innerText = "Senha inválida! Digite pelo menos 6 caracteres.";
+        alertCadastroProfissional.className = "erro";
+        apagarMensagem();
+        return;
+    }
+    // 6. validação se senha e confirmação de senha são iguais
     if (senha !== confirmacaoSenha) {
         alertCadastroProfissional.innerText = "Senha e confirmação não coincidem!";
         alertCadastroProfissional.className = "erro";
@@ -1285,6 +1306,13 @@ function validarTelefone(telefone) {
     let apenasNumeros = telefone.replace(/\D/g, "");
     // verifica se tem 10 ou 11 dígitos
     if (apenasNumeros.length !== 10 && apenasNumeros.length !== 11) {
+        return false;
+    }
+    return true;
+}
+// função para validar a senha do usuário (mínimo 6 caracteres)
+function validarSenha(senha) {
+    if (senha.length < 6) {
         return false;
     }
     return true;
@@ -1577,7 +1605,14 @@ function redefinirSenhaUsuario() {
         apagarMensagem();
         return;
     }
-    // 4. validação se senha e confirmação de senha são iguais
+    // 4. validação de senha (mínimo 6 caracteres)
+    if (!validarSenha(novaSenha)) {
+        alertRedefinirSenhaLogin.innerText = "Senha inválida! Digite pelo menos 6 caracteres.";
+        alertRedefinirSenhaLogin.className = "erro";
+        apagarMensagem();
+        return;
+    }
+    // 5. validação se senha e confirmação de senha são iguais
     if (novaSenha !== confirmarNovaSenha) {
         alertRedefinirSenhaLogin.innerText = "Senha e confirmação não coincidem!";
         alertRedefinirSenhaLogin.className = "erro";
