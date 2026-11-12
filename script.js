@@ -882,7 +882,9 @@ function servicosAgendados() {
                                 <p>Horário: ${agendamento.horario}</p>
                                 <p>Orçamento: ${formatarOrcamento(agendamento)}</p> 
                                 <button onclick="deletarAgendamento(${agendamento.id})">🗑️</button>
-                                <button onclick="irParaAvaliacao(${agendamento.id}, ${agendamento.profissional_id})">⭐</button>                          
+                                <button onclick="irParaAvaliacao(${agendamento.id}, ${agendamento.profissional_id})">⭐</button> 
+                                <button onclick="copiarAgendamento(${agendamento.id})">📋</button>
+                                <button onclick="pdfAgendamento(${agendamento.id})">📄</button>                         
                             </div>
                         `;
                     });
@@ -890,6 +892,50 @@ function servicosAgendados() {
         })
         .catch(error => {
             console.error("Erro:", error);
+        });
+}
+// função para copiar agendamento para a área de transferência
+function copiarAgendamento(idAgendamento) {
+  // Integra com a api para buscar o agendamento pelo id
+    fetch(`https://api-agendja.onrender.com/agendamentos/${idAgendamento}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Erro ao buscar agendamento");
+            }
+            return response.json();
+        })
+        .then(agendamento => {
+            // Integra com a api para buscar os dados do profissional
+            return fetch(`https://api-agendja.onrender.com/profissionais/${agendamento.profissional_id}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Erro ao buscar profissional");
+                    }
+                    return response.json();
+                })
+                .then(profissional => {
+                    // organiza os dados para copiar
+                    const textoAgendamento = `
+                   Serviço: ${formatarProfissao(agendamento.servico)}
+                   Profissional: ${profissional.nome}
+                   Data: ${formatarData(agendamento.data)}
+                   Horário: ${agendamento.horario}
+                   Orçamento: ${formatarOrcamento(agendamento)}
+                    `;
+
+                    return navigator.clipboard.writeText(textoAgendamento);
+                });
+        })
+        .then(() => {
+            alertServicosAgendados.innerText = "Agendamento copiado com sucesso!";
+            alertServicosAgendados.className = "sucesso";
+            apagarMensagem();
+        })
+        .catch(error => {
+            console.error("Erro ao copiar o agendamento:", error);
+            alertServicosAgendados.innerText = "Erro ao copiar o agendamento. Tente novamente.";
+            alertServicosAgendados.className = "erro";
+            apagarMensagem();
         });
 }
 // Função do botão Cancelar Agendamento
