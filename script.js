@@ -218,9 +218,9 @@ function cadastrarCliente() {
 function finalizarCadastro() {
     // pega os valores dos campos de cadastro
     let nome = document.getElementById("nome").value.trim();
-    let cpf = document.getElementById("cpf-cadastro").value.trim();
+    let cpf = document.getElementById("cpf-cadastro").value.replace(/\D/g, "");
     let senha = document.getElementById("senha-cadastro").value;
-    let telefone = document.getElementById("telefone").value.trim();
+    let telefone = document.getElementById("telefone").value.replace(/\D/g, "");
     let confirmacaoSenha = document.getElementById("confirmar-senha").value;
 
     // 1.validação simples dos campos não preenchidos
@@ -315,7 +315,7 @@ function finalizarCadastro() {
 // função para o botão de entrar (cliente) - login
 function entrarCliente() {
     // pega os valores dos campos de login
-    let cpf = document.getElementById("cpf").value.trim();
+    let cpf = document.getElementById("cpf").value.replace(/\D/g, "");
     let senha = document.getElementById("senha").value;
     // validação simples dos campos não preenchidos
     if ( validarCamposVazios(cpf) || validarCamposVazios(senha)) {
@@ -382,7 +382,7 @@ function entrarCliente() {
 // função para o botão de entrar (profissional) - login
 function entrarProfissional() {
     // pega os valores dos campos de login
-    let cpf = document.getElementById("cpf").value.trim();
+    let cpf = document.getElementById("cpf").value.replace(/\D/g, "");
     let senha = document.getElementById("senha").value;
     // validação simples dos campos não preenchidos
     if ( validarCamposVazios(cpf) || validarCamposVazios(senha)) {
@@ -548,7 +548,7 @@ function redefinirSenhaPerfilProfissional() {
 // função para salvar nova senha
 function salvarNovaSenha(){
  // pega os valores dos campos de redefinir senha
-    let cpf = document.getElementById("cpf-redefinir").value.trim();
+    let cpf = document.getElementById("cpf-redefinir").value.replace(/\D/g, "");
     let novaSenha = document.getElementById("nova-senha").value;
     let confirmarNovaSenha = document.getElementById("confirmar-nova-senha").value;
 
@@ -1147,8 +1147,8 @@ function cadastrarProfissional() {
 function finalizarCadastroProfissional() {
     // pega os valores dos campos de cadastro
     let nome = document.getElementById("nome-profissional").value.trim();
-    let cpf = document.getElementById("cpf-profissional").value.trim();
-    let telefone = document.getElementById("telefone-profissional").value.trim();
+    let cpf = document.getElementById("cpf-profissional").value.replace(/\D/g, "");
+    let telefone = document.getElementById("telefone-profissional").value.replace(/\D/g, "");
     let profissao = document.getElementById("escolha-profissao").value;
     let senha = document.getElementById("senha-profissional").value;
     let confirmacaoSenha = document.getElementById("confirmar-senha-profissional").value;
@@ -1455,8 +1455,8 @@ function editarDadosProfissional() {
 function finalizarEdicaoPerfil() {
 // pega os valores que o cliente digitou
 let nome = document.getElementById("nome-editar").value.trim();
-let cpf = document.getElementById("cpf-editar").value.trim();
-let telefone = document.getElementById("telefone-editar").value.trim(); 
+let cpf = document.getElementById("cpf-editar").value.replace(/\D/g, "");
+let telefone = document.getElementById("telefone-editar").value.replace(/\D/g, "");
 // 1. validação simples dos campos não preenchidos
     if (validarCamposVazios(cpf) || validarCamposVazios(nome) || validarCamposVazios(telefone)) {
         alertEditarDadosCliente.innerText = "Por favor, preencha todos os campos!";
@@ -1534,8 +1534,8 @@ let telefone = document.getElementById("telefone-editar").value.trim();
 function finalizarEdicaoDadosProfissional() {
 // pega os valores que o cliente digitou
 let nome = document.getElementById("nome-profissional-editar").value.trim();
-let cpf = document.getElementById("cpf-profissional-editar").value.trim();
-let telefone = document.getElementById("telefone-profissional-editar").value.trim();
+let cpf = document.getElementById("cpf-profissional-editar").value.replace(/\D/g, "");
+let telefone = document.getElementById("telefone-profissional-editar").value.replace(/\D/g, "");
 let profissao = document.getElementById("profissao-profissional-editar").value;
 // 1. validação simples dos campos não preenchidos
     if (validarCamposVazios(cpf) || validarCamposVazios(nome) || validarCamposVazios(telefone) || validarCamposVazios(profissao)){
@@ -1702,7 +1702,7 @@ function esqueciSenha() {
 function redefinirSenhaUsuario() {
     // pega os valores dos campos de redefinir senha
     let nome = document.getElementById("nome-redefinir-senha-usuario").value.trim();
-    let cpf = document.getElementById("cpf-redefinir-senha-usuario").value.trim();
+    let cpf = document.getElementById("cpf-redefinir-senha-usuario").value.replace(/\D/g, "");
     let novaSenha = document.getElementById("nova-senha-usuario").value;
     let confirmarNovaSenha = document.getElementById("confirmar-nova-senha-usuario").value;
     let tipoUsuario = document.getElementById("tipo-usuario").value;
@@ -1787,3 +1787,32 @@ function redefinirSenhaUsuario() {
         apagarMensagem();
     })
 }
+// função para criar mascaras de CPF e telefone nos campos de cadastro e edição de perfil
+function criarMascaras() {
+    // mascara de CPF
+    let cpfInputs = document.querySelectorAll("#cpf,#cpf-cadastro, #cpf-editar, #cpf-profissional, #cpf-redefinir, #cpf-profissional-editar, #cpf-redefinir-senha-usuario");
+    cpfInputs.forEach(input => {
+        input.addEventListener("input", function () {
+            let valor = this.value.replace(/\D/g, ""); // Remove tudo o que não é dígito
+            if (valor.length > 11) valor = valor.slice(0, 11); // Limita a 11 dígitos
+            valor = valor.replace(/(\d{3})(\d)/, "$1.$2"); // Coloca ponto entre o terceiro e o quarto dígito
+            valor = valor.replace(/(\d{3})(\d)/, "$1.$2"); // Coloca ponto entre o sexto e o sétimo dígito
+            valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2"); // Coloca hífen entre o nono e o décimo dígito
+            this.value = valor;
+        });
+    });
+
+    // mascara de telefone
+    let telefoneInputs = document.querySelectorAll("#telefone, #telefone-cadastro, #telefone-editar, #telefone-profissional, #telefone-profissional-editar, #telefone-redefinir-senha-usuario");
+    telefoneInputs.forEach(input => {
+        input.addEventListener("input", function () {
+            let valor = this.value.replace(/\D/g, ""); // Remove tudo o que não é dígito
+            if (valor.length > 11) valor = valor.slice(0, 11);// Limita ao máximo ou a 11 dígitos
+            if (valor.length === 11) valor = valor.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3"); // Formato para celulares
+            if (valor.length === 10) valor = valor.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3"); // Formato para telefones fixos
+            this.value = valor;
+        });
+    });
+}
+// chama a função para criar as mascaras de CPF e telefone
+criarMascaras();
