@@ -915,12 +915,12 @@ function copiarAgendamento(idAgendamento) {
                 })
                 .then(profissional => {
                     // organiza os dados para copiar
-                    const textoAgendamento = `
-                   Serviço: ${formatarProfissao(agendamento.servico)}
-                   Profissional: ${profissional.nome}
-                   Data: ${formatarData(agendamento.data)}
-                   Horário: ${agendamento.horario}
-                   Orçamento: ${formatarOrcamento(agendamento)}
+                const textoAgendamento = `
+                Serviço: ${formatarProfissao(agendamento.servico)}
+                Profissional: ${profissional.nome}
+                Data: ${formatarData(agendamento.data)}
+                Horário: ${agendamento.horario}
+                Orçamento: ${formatarOrcamento(agendamento)}
                     `;
 
                     return navigator.clipboard.writeText(textoAgendamento);
@@ -934,6 +934,82 @@ function copiarAgendamento(idAgendamento) {
         .catch(error => {
             console.error("Erro ao copiar o agendamento:", error);
             alertServicosAgendados.innerText = "Erro ao copiar o agendamento. Tente novamente.";
+            alertServicosAgendados.className = "erro";
+            apagarMensagem();
+        });
+}
+// função para gerar pdf do agendamento
+function pdfAgendamento(idAgendamento) {
+    // Integra com a api para buscar o agendamento pelo id
+    fetch(`https://api-agendja.onrender.com/agendamentos/${idAgendamento}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Erro ao buscar agendamento");
+            }
+            return response.json();
+        })
+        .then(agendamento => {
+            // Integra com a api para buscar os dados do profissional
+            return fetch(`https://api-agendja.onrender.com/profissionais/${agendamento.profissional_id}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Erro ao buscar profissional");
+                    }
+                    return response.json();
+                })
+                .then(profissional => {
+                    // organiza os dados para gerar o pdf
+                    const textoAgendamento = `
+    Serviço: ${formatarProfissao(agendamento.servico)}
+    Profissional: ${profissional.nome}
+    Data: ${formatarData(agendamento.data)}
+    Horário: ${agendamento.horario}
+    Orçamento: ${formatarOrcamento(agendamento)}
+                    `;
+                   // Cria o PDF com os dados do agendamento
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    // Definir a fonte
+                    doc.setFont("helvetica", "normal");
+                    // Adicionar titulo ao PDF (negrito e centralizado)
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(20);
+                    doc.text("AgendJá", 105, 20, { align: "center" });
+                    // Adicionar subtitulo ao PDF
+                    doc.setFont("helvetica", "italic");
+                    doc.setFontSize(16);
+                    doc.text("Comprovante de Agendamento", 105, 30, { align: "center" });
+                    // Adicionar uma linha horizontal abaixo do subtitulo
+                    doc.setFont("helvetica", "normal");
+                    doc.setLineWidth(0.5);
+                    doc.line(10, 35, 200, 35);
+                    // Adicionar os dados do agendamento ao PDF
+                    // Adiciona linha meio que arredor do texto do agendamento
+                    doc.setDrawColor(0, 0, 0);
+                    doc.rect(70, 132, 70, 45);
+                    doc.setFontSize(12);
+                    doc.text(textoAgendamento, 105, 136, {
+                    align: "center",
+                    lineHeightFactor: 1.5 });
+                    // Adiciona uma linha horizontal acima do rodapé
+                    doc.setLineWidth(0.5);
+                    doc.line(10, 275, 200, 275);
+                    // Adiciona um rodapé ao PDF com letra em italico e centralizado
+                    doc.setFont("helvetica", "italic");
+                    doc.setFontSize(15);
+                    doc.text("Agradecemos pela preferência!", 105, 285, { align: "center" });
+                    // Salva o PDF com o nome "Comprovante de Agendamento.pdf"
+                    doc.save("Comprovante de Agendamento.pdf");
+                    // Mensagem de sucesso na tela
+                    alertServicosAgendados.innerText = "PDF do agendamento gerado com sucesso!";
+                    alertServicosAgendados.className = "sucesso";
+                    apagarMensagem();
+                });
+        })
+        // Mensagem de erro caso não consiga gerar o pdf
+        .catch(error => {
+            console.error("Erro ao gerar PDF do agendamento:", error);
+            alertServicosAgendados.innerText = "Erro ao gerar PDF do agendamento. Tente novamente.";
             alertServicosAgendados.className = "erro";
             apagarMensagem();
         });
